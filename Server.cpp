@@ -50,7 +50,9 @@ int startServer(int port) {
 	SOCKET clientSocket = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
 	cout << "got connection: " << clientSocket << endl;
 
-	char* remoteIp = inet_ntoa(clientAddr.sin_addr);
+	//char* remoteIp = inet_ntoa(clientAddr.sin_addr);
+	char remoteIp[256] = { 0 };
+	inet_ntop(AF_INET, (void*)&clientAddr.sin_addr, remoteIp, sizeof(remoteIp));
     int clientPort = ntohs(clientAddr.sin_port);
 
 

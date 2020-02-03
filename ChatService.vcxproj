@@ -147,13 +147,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Launcher.cpp" />
+    <ClCompile Include="SocketClient.cpp" />
     <ClCompile Include="ChatService.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="MultiThreadServer.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="SocketServer.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SocketClient.h" />
+    <ClInclude Include="SocketServer.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

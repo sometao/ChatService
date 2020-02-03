@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-
 using namespace std;
 
 int startClient(char* serverHost, int serverPort) {
@@ -13,7 +12,8 @@ int startClient(char* serverHost, int serverPort) {
 
 
 	targetAddr.sin_family = AF_INET;
-	targetAddr.sin_addr.s_addr = inet_addr(serverHost);
+	//targetAddr.sin_addr.s_addr = inet_addr(serverHost);
+	inet_pton(AF_INET, serverHost, (void *)&targetAddr.sin_addr.s_addr);
 	targetAddr.sin_port = htons(serverPort);
 
 	if (WSAStartup(SOCKET_VERSION, &wsaData) != OK) {

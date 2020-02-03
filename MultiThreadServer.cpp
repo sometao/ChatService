@@ -10,7 +10,9 @@ int chatWorker(SOCKET &clientSocket, SOCKADDR_IN &clientAddr) {
 	char sendBuffer[BUFFER_SIZE] = { 0 };
 
 
-	char* remoteIp = inet_ntoa(clientAddr.sin_addr);
+	//char* remoteIp = inet_ntoa(clientAddr.sin_addr);
+	char remoteIp[256] = {0};
+	inet_ntop(AF_INET, (void *)&clientAddr.sin_addr, remoteIp, sizeof(remoteIp));
 	int clientPort = ntohs(clientAddr.sin_port);
 
 
@@ -46,6 +48,42 @@ int chatWorker(SOCKET &clientSocket, SOCKADDR_IN &clientAddr) {
 	return OK;
 }
 
+int chatWorking(SOCKET& clientSocket) {
+
+	char receiveBuffer[BUFFER_SIZE] = { 0 };
+	char sendBuffer[BUFFER_SIZE] = { 0 };
+
+	memset(receiveBuffer, 0, BUFFER_SIZE);
+	int rcvLen = recv(clientSocket, receiveBuffer, BUFFER_SIZE - 1, 0);
+	cout << "receive data len=[" << rcvLen << "]" << endl;
+
+	if (strcmp(receiveBuffer, "shutdown") == 0) {
+		cout << "got [shutdown] msg" << endl;
+		return ERR;
+	}
+	else
+	{
+		memset(sendBuffer, 0, BUFFER_SIZE);
+		strcat_s(sendBuffer, "Thank you for your message[");
+		strcat_s(sendBuffer, receiveBuffer);
+		strcat_s(sendBuffer, "]");
+
+		if (send(clientSocket, sendBuffer, strlen(sendBuffer) + 1, 0) < 0) {
+			cout << "send reply error." << endl;
+		}
+
+		cout << "Receive msg ";
+		cout << "data: [" << receiveBuffer << "]" << endl;
+		return OK;
+	}
+
+}
+
+
+int processor(SOCKET s) {
+	int ret = chatWorking(s);
+	return ret;
+}
 
 
 int startMultiThreadServer(int port) {
@@ -104,11 +142,14 @@ int startMultiThreadServer(int port) {
 		FD_SET(serverSocket, &fdExcept);
 
 		
-		for (size_t i = 0; i < g_clients.size; i++) {
+		for (size_t i = 0; i < g_clients.size(); i++) {
 			FD_SET(g_clients[i], &fdRead);
 		}
 
-		int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, nullptr);
+		timeval timeInterval = { 0, 200 };
+
+		int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
+		cout << "select once..." << endl;
 
 		if (ret < 0) {
 			cout << "select task complete." << endl;
@@ -117,7 +158,6 @@ int startMultiThreadServer(int port) {
 
 		if (FD_ISSET(serverSocket, &fdRead)) {
 			FD_CLR(serverSocket, &fdRead);
-
 
 			cout << "waiting connect..." << endl;
 			SOCKADDR_IN clientAddr;
@@ -130,14 +170,22 @@ int startMultiThreadServer(int port) {
 			cout << "got connection: " << clientSocket << endl;
 
 			g_clients.push_back(clientSocket);
-			//TODO here...
-
-			//chatWorker(clientSocket, clientAddr);
-
-			//thread work(chatWorker, ref(clientSocket), ref(clientAddr));
-
-
 		}
+
+		for (size_t n = 0; n < fdRead.fd_count; n++) {
+			if (processor(fdRead.fd_array[n]) == -1) {
+				auto it = find(g_clients.begin(), g_clients.end(), fdRead.fd_array[n]);
+				if (it != g_clients.end()) {
+					g_clients.erase(it);
+				}
+			}
+		}
+
+		//TODO here...
+
+		//chatWorker(clientSocket, clientAddr);
+
+		//thread work(chatWorker, ref(clientSocket), ref(clientAddr));
 
 
 

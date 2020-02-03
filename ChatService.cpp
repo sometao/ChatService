@@ -2,14 +2,16 @@
 //
 
 #include "stdafx.h"
-#include <string>
-using namespace std;
+using std::cout;
+using std::endl;
+using std::stoi;
 
-int startClient(char* serverHost, int serverPort);
-int startServer(int port);
-int startMultiThreadServer(int port);
+extern int startClient(char* serverHost, int serverPort);
+extern int startServer(int port);
+extern int startMultiThreadServer(int port);
 
-int main(int argc, char* argv[])
+
+int main0(int argc, char* argv[])
 {
     if (argc > 1) {
         if (strcmp(argv[1], "client") == 0) {
