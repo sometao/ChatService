@@ -20,6 +20,7 @@ int main0(int argc, char* argv[])
                 int port = stoi(argv[3], 0, 10);
                 cout << "setup socket to [" << host << ":" << port << endl;
                 startClient(host, port);
+                return OK;
             }
             else {
                 cout << "input error. " << endl;
@@ -32,6 +33,7 @@ int main0(int argc, char* argv[])
 				int port = stoi(argv[2], 0, 10);
 				cout << "start server on port [" << port << "]" << endl;
                 startMultiThreadServer(port);
+                return OK;
 			}
 			else {
 				cout << "input error. " << endl;
@@ -45,6 +47,9 @@ int main0(int argc, char* argv[])
             return ERR;
         }
 
+    }
+    else {
+        return ERR;
     }
 
 

@@ -186,12 +186,6 @@ int startMultiThreadServer(int port) {
 		//chatWorker(clientSocket, clientAddr);
 
 		//thread work(chatWorker, ref(clientSocket), ref(clientAddr));
-
-
-
-
-
-
 	}
 
 

@@ -3,6 +3,8 @@
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #include <string>
+#include <vector>
+#include <memory>
 #pragma comment (lib, "ws2_32.lib")
 
 #define OK 0
@@ -13,3 +15,4 @@
 
 typedef void (MessageHandler)(const unsigned int connectId, const char* data, const unsigned int length);
 
+const int BACKLOG = 15;
