@@ -18,6 +18,37 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="old\resource.h" />
+    <ClInclude Include="old\testheader.h" />
+    <ClInclude Include="src\ChatClient.h" />
+    <ClInclude Include="src\chatProtocol.h" />
+    <ClInclude Include="src\ChatServer.h" />
+    <ClInclude Include="src\constant.h" />
+    <ClInclude Include="src\SocketClient.h" />
+    <ClInclude Include="src\SocketServer.h" />
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\UserAgent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="old\ChatService.cpp" />
+    <ClCompile Include="old\Client.cpp" />
+    <ClCompile Include="old\MultiThreadServer.cpp" />
+    <ClCompile Include="old\Server.cpp" />
+    <ClCompile Include="src\ChatClient.cpp" />
+    <ClCompile Include="src\ChatServer.cpp" />
+    <ClCompile Include="src\Launcher.cpp" />
+    <ClCompile Include="src\SocketClient.cpp" />
+    <ClCompile Include="src\SocketServer.cpp" />
+    <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\UserAgent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\md-styles.css" />
+    <None Include="resources\mdDemo.md" />
+    <None Include="resources\readme.md" />
+    <None Include="resources\retro.css" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{7C7D0EA4-D425-42A3-B9F8-777883569D2D}</ProjectGuid>
@@ -72,7 +103,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);.;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./src;./old;</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x86);$(CommonExecutablePath);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -147,23 +179,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="ChatServer.cpp" />
-    <ClCompile Include="Launcher.cpp" />
-    <ClCompile Include="SocketClient.cpp" />
-    <ClCompile Include="ChatService.cpp" />
-    <ClCompile Include="Client.cpp" />
-    <ClCompile Include="MultiThreadServer.cpp" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="SocketServer.cpp" />
-    <ClCompile Include="stdafx.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ChatServer.h" />
-    <ClInclude Include="SocketClient.h" />
-    <ClInclude Include="SocketServer.h" />
-    <ClInclude Include="stdafx.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,14 +1,21 @@
 #include "SocketServer.h"
+#include <vector>
 
+#include <winsock2.h>
+#include <WS2tcpip.h>
+#pragma comment (lib, "ws2_32.lib")
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
 
+
+
+
 SocketServer::SocketServer(int _port) : port(_port)
 {
-	cout << "setup connection on [" << port << "] ... " << endl;
+	cout << "seting up connection on [" << port << "] ... " << endl;
 	setupConnect();
 }
 
@@ -18,8 +25,7 @@ int SocketServer::selecting() {
 	cout << "Start select." << endl;
 
 	vector<SOCKET> g_clients{};
-	const int buffSize = 1024;
-	char buff[buffSize] = {};
+	char buff[BUFFER_SIZE] = {};
 
 	while (true)
 	{
@@ -55,9 +61,10 @@ int SocketServer::selecting() {
 			FD_CLR(serverSocket, &fdRead);
 
 			cout << "waiting connect..." << endl;
-			SOCKADDR_IN clientAddr;
-			int socketAddrLen = 0;
-			SOCKET clientSocket = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
+			SOCKADDR_IN clientAddr = {};
+			int socketAddrLen = sizeof(SOCKADDR_IN);
+			SOCKET clientSocket = INVALID_SOCKET;
+			clientSocket = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
 			if (INVALID_SOCKET == clientSocket) {
 				cout << "accept client socket error." << endl;
 				continue;
@@ -69,12 +76,15 @@ int SocketServer::selecting() {
 		}
 
 		for (size_t n = 0; n < fdRead.fd_count; n++) {
-			if (readSocketData(fdRead.fd_array[n], buff, buffSize) == ERR) {
+			auto s = fdRead.fd_array[n];
+			if (readSocketData(s, buff, BUFFER_SIZE) == ERR) {
 				auto it = find(g_clients.begin(), g_clients.end(), fdRead.fd_array[n]);
 				if (it != g_clients.end()) {
 					g_clients.erase(it);
 				}
 			}
+			cout << "Receive msg from client socket[" << s << "] ";
+			cout << "data: [" << buff << "]" << endl;
 		}
 	}
 
@@ -90,15 +100,22 @@ int SocketServer::readSocketData(const SOCKET s, char* const buff, const int buf
 {
 	memset(buff, 0, buffSize);
 	int rcvLen = recv(s, buff, buffSize - 1, 0);
-	cout << "debug: receive data len=[" << rcvLen << "]" << endl;
-	cout << "Receive msg ";
-	cout << "data: [" << buff << "]" << endl;
-	return OK;
+	if (rcvLen < 0) {
+		cout << "socket [" << static_cast<int>(s) << " disconnected." << endl;
+		return ERR;
+	} else {
+		cout << "debug: receive data len=[" << rcvLen << "]" << endl;
+		return OK;
+	}
+
 }
 
 
 int SocketServer::setupConnect()
 {
+
+	WSADATA	wsaData = {};
+
 
 	SOCKADDR_IN serverAddr = { 0 };
 
@@ -112,14 +129,14 @@ int SocketServer::setupConnect()
 	}
 
 	serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR)) == SOCKET_ERROR) {
+	if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR) {
 		closesocket(serverSocket);
 		WSACleanup();
 		cout << "bind error." << endl;
 		return ERR;
 	}
 
-	if (listen(serverSocket, BACKLOG) < 0) {
+	if (listen(serverSocket, BACKLOG) == SOCKET_ERROR) {
 		closesocket(serverSocket);
 		WSACleanup();
 		cout << "listen error." << endl;

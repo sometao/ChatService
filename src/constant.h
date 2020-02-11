@@ -1,11 +1,6 @@
 #pragma once
-#include <iostream>
-#include <winsock2.h>
-#include <WS2tcpip.h>
 #include <string>
-#include <vector>
-#include <memory>
-#pragma comment (lib, "ws2_32.lib")
+#include <iostream>
 
 #define OK 0
 #define ERR -1
@@ -16,3 +11,5 @@
 typedef void (MessageHandler)(const unsigned int connectId, const char* data, const unsigned int length);
 
 const int BACKLOG = 15;
+const std::string SERVER_IP = "127.0.0.1";
+const int SERVER_PORT = 12345;

@@ -13,51 +13,95 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\client">
+      <UniqueIdentifier>{3dc5a7c9-6a03-4e0d-8eeb-04c7a0cf2f2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server">
+      <UniqueIdentifier>{c80fa12b-4567-45fe-b192-b5c29f9d4f1a}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\old">
-      <UniqueIdentifier>{de3f4899-dbe7-47f5-a8f1-6f99d38623b1}</UniqueIdentifier>
+      <UniqueIdentifier>{3e7c267f-cacb-446b-8f77-7c188e9b7037}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SocketClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SocketServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Launcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ChatServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Client.cpp">
+    <ClInclude Include="old\resource.h">
+      <Filter>Source Files\old</Filter>
+    </ClInclude>
+    <ClInclude Include="old\testheader.h">
+      <Filter>Source Files\old</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ChatClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ChatServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SocketClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SocketServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserAgent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chatProtocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\constant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="old\Client.cpp">
       <Filter>Source Files\old</Filter>
     </ClCompile>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="old\MultiThreadServer.cpp">
       <Filter>Source Files\old</Filter>
     </ClCompile>
-    <ClCompile Include="MultiThreadServer.cpp">
+    <ClCompile Include="old\Server.cpp">
       <Filter>Source Files\old</Filter>
     </ClCompile>
-    <ClCompile Include="ChatService.cpp">
+    <ClCompile Include="src\Launcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ChatClient.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SocketClient.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserAgent.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ChatServer.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SocketServer.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="old\ChatService.cpp">
       <Filter>Source Files\old</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SocketClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SocketServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChatServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <None Include="resources\retro.css">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\readme.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\mdDemo.md">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\md-styles.css">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

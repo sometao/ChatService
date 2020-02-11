@@ -3,14 +3,8 @@
 using std::cout;
 using std::endl;
 
-ChatServer::ChatServer(const string _ip, const int _port)
-	: ip(_ip), port(_port)
-{
-
-
-
-
-}
+ChatServer::ChatServer(string _ip, int _port)
+	: ip(_ip), port(_port) {};
 
 int ChatServer::start()
 {
@@ -23,10 +17,6 @@ int ChatServer::start()
 	if (ret == ERR) {
 		cout << "socket server start error." << endl;
 	}
-
-	cout << "begin sleep..." << endl;
-	Sleep(3000);
-	cout << "sleep end." << endl;
 
 	cout << "chatServer finish." << endl;
 

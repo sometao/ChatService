@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "constant.h"
 
 
 using namespace std;

@@ -1,10 +1,22 @@
 #pragma once
-#include "stdafx.h"
+#include "constant.h"
+#include <winsock2.h>
 
 using std::string;
 
+
 class SocketServer
 {
+
+	int port;
+	boolean isSelecting = false;
+	SOCKET serverSocket{ INVALID_SOCKET };
+
+	int selecting();
+
+	int readSocketData(const SOCKET s, char* const buff, const int buffSize);
+	int setupConnect();
+
 public:
 	SocketServer(int _port);
 
@@ -18,18 +30,5 @@ public:
 	int close();
 	int start();
 
-
-
-private:
-	int port;
-	boolean isSelecting = false;
-	SOCKET serverSocket{ INVALID_SOCKET };
-	WSADATA	wsaData = {};
-
-	int selecting();
-
-
-	int readSocketData(const SOCKET s, char* const buff, const int buffSize);
-	int setupConnect();
 };
 

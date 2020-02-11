@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "constant.h"
+
 #include <thread>
 #include <vector>
 
@@ -181,7 +183,6 @@ int startMultiThreadServer(int port) {
 			}
 		}
 
-		//TODO here...
 
 		//chatWorker(clientSocket, clientAddr);
 

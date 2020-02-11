@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "constant.h"
+
 
 using namespace std;
 
@@ -46,7 +48,7 @@ int startClient(char* serverHost, int serverPort) {
 		}
 
 		memset(rcvBuff, 0, BUFFER_SIZE);
-		if (recv(clientSocket, rcvBuff, BUFFER_SIZE -1, 0) > 0) {
+		if (recv(clientSocket, rcvBuff, BUFFER_SIZE - 1, 0) > 0) {
 			cout << "RECEIVE: [" << rcvBuff << "]" << endl;
 		}
 		else {
