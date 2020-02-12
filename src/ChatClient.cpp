@@ -19,6 +19,12 @@ ConnectRsp ChatClient::connect(string ip, int port, string username, string pass
 	return ConnectRsp::ConnectSuccess;
 }
 
+int ChatClient::sendChat(const int& cid, const string& chat)
+{
+	sendMsg(chat);
+	return 0;
+}
+
 int ChatClient::sendMsg(const string& msg)
 {
 	char sendBuff[BUFFER_SIZE];

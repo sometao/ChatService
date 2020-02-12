@@ -32,7 +32,7 @@ class ChatClient
 	static string buildLoginMsg(const string& name, const string& passwd) {
 		stringstream ss{};
 		ss << "name=" << name << ",";
-		ss << "passwd=" << passwd << ",";
+		ss << "passwd=" << passwd;
 		return buildMsg(CMD_LOGIN, CID_DEFAULT, ss.str());
 	}
 

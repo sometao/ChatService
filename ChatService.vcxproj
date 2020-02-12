@@ -25,6 +25,7 @@
     <ClInclude Include="src\chatProtocol.h" />
     <ClInclude Include="src\ChatServer.h" />
     <ClInclude Include="src\constant.h" />
+    <ClInclude Include="src\EasyWay.h" />
     <ClInclude Include="src\SocketClient.h" />
     <ClInclude Include="src\SocketServer.h" />
     <ClInclude Include="src\stdafx.h" />

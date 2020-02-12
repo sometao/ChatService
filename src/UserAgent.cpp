@@ -17,19 +17,23 @@ void UserAgent::eventProcessor()
 
 	decltype(eventList) targetList{};
 	cout << "Event Processor Created." << endl;
-	unique_lock<std::mutex> lk{ eventMutex };
+	unique_lock<std::mutex> lk{ eventMutex, std::defer_lock };
 
 	while (true) {
 		if (!targetList.empty()) {
 			string target = targetList.front();
 			targetList.pop_front();
 			cout << "process event:[" << target << "]" << endl;
+			chatClient->sendChat(0, target);
 		} else {
-			if (eventCv.wait_for(lk, 2000ms, [&]{return !eventList.empty();})) {
+			lk.lock();
+			if (eventCv.wait_for(lk, 5000ms, [&]{return !eventList.empty();})) {
 				targetList.swap(eventList);
 			} else {
-				//do nothing.
+				//check stauts every 5 seconds.
 			};
+			lk.unlock();
+			eventCv.notify_all();
 		}
 
 	}
@@ -55,9 +59,6 @@ void UserAgent::inputHandlerFunc()
 			eventList.push_back(std::move(ss.str()));
 		}
 		eventCv.notify_all();
-		cout << "eventList:";
-		for (auto l : eventList) { cout << l << ", "; }
-		cout << endl;
 	}
 }
 

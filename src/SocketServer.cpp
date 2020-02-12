@@ -10,17 +10,20 @@ using std::endl;
 using std::string;
 using std::vector;
 
-
-
-
 SocketServer::SocketServer(int _port) : port(_port)
 {
 	cout << "seting up connection on [" << port << "] ... " << endl;
 	setupConnect();
 }
 
+int SocketServer::onMessage(void(*f)(const string& data))
+{
+	handler = f;
+	return 0;
+}
 
-int SocketServer::selecting() {
+
+void SocketServer::selecting() {
 
 	cout << "Start select." << endl;
 
@@ -47,10 +50,10 @@ int SocketServer::selecting() {
 			FD_SET(g_clients[i], &fdRead);
 		}
 
-		timeval timeInterval = { 1, 0 };
+		//timeval timeInterval = { 1, 0 };
 
-		int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
-		cout << "select once..." << endl;
+		int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, nullptr);
+		//cout << "select once..." << endl;
 
 		if (ret < 0) {
 			cout << "select task complete." << endl;
@@ -84,16 +87,16 @@ int SocketServer::selecting() {
 				}
 			}
 			cout << "Receive msg from client socket[" << s << "] ";
-			cout << "data: [" << buff << "]" << endl;
+
+			string data{ buff };
+			if (handler != nullptr) {
+				handler(std::move(data));
+			}
+
 		}
 	}
 
 	cout << "End select." << endl;
-
-	return OK;
-
-	
-
 }
 
 int SocketServer::readSocketData(const SOCKET s, char* const buff, const int buffSize)

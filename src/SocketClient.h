@@ -19,7 +19,6 @@ class SocketClient
 
 public:
 
-	int onMessage(MessageHandler handler);
 	int onClose(void (*f)(void));
 
 	int connectServerSocket(string ip, int port);

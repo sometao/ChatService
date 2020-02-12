@@ -37,7 +37,7 @@ int SocketClient::connectServerSocket(string ip, int port) {
 int SocketClient::socketClientSend(char* sendBuff, unsigned int len)
 {
 
-	cout << "send msg begin:" << sendBuff << endl;
+	//cout << "send msg begin:" << sendBuff << endl;
 	if (send(clientSocket, sendBuff, len, 0) == SOCKET_ERROR) {
 		cout << "send msg err" << endl;
 		closesocket(clientSocket);
@@ -45,7 +45,7 @@ int SocketClient::socketClientSend(char* sendBuff, unsigned int len)
 		return ERR;
 	}
 
-	cout << "send msg end:" << sendBuff << endl;
+	//cout << "send msg end:" << sendBuff << endl;
 
 	return OK;
 }
