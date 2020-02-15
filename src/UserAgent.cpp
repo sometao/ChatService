@@ -11,35 +11,32 @@ using std::cout;
 using std::endl;
 using std::cin;
 
-void UserAgent::eventProcessor()
-{
-	using namespace std::chrono_literals;
-
-	decltype(eventList) targetList{};
-	cout << "Event Processor Created." << endl;
-	unique_lock<std::mutex> lk{ eventMutex, std::defer_lock };
-
-	while (true) {
-		if (!targetList.empty()) {
-			string target = targetList.front();
-			targetList.pop_front();
-			cout << "process event:[" << target << "]" << endl;
-			chatClient->sendChat(0, target);
-		} else {
-			lk.lock();
-			if (eventCv.wait_for(lk, 5000ms, [&]{return !eventList.empty();})) {
-				targetList.swap(eventList);
-			} else {
-				//check stauts every 5 seconds.
-			};
-			lk.unlock();
-			eventCv.notify_all();
-		}
-
-	}
-
-
-}
+//void UserAgent::eventProcessor()
+//{
+//	using namespace std::chrono_literals;
+//
+//	decltype(eventList) targetList{};
+//	cout << "Event Processor Created." << endl;
+//	unique_lock<std::mutex> lk{ eventMutex, std::defer_lock };
+//
+//	while (true) {
+//		if (!targetList.empty()) {
+//			string target = targetList.front();
+//			targetList.pop_front();
+//			cout << "process event:[" << target << "]" << endl;
+//			chatClient->sendChat(0, target);
+//		} else {
+//			lk.lock();
+//			if (eventCv.wait_for(lk, 5000ms, [&]{return !eventList.empty();})) {
+//				targetList.swap(eventList);
+//			} else {
+//				//check stauts every 5 seconds.
+//			};
+//			lk.unlock();
+//			eventCv.notify_all();
+//		}
+//	}
+//}
 
 void UserAgent::inputHandlerFunc()
 {
@@ -54,11 +51,8 @@ void UserAgent::inputHandlerFunc()
 		cout << "$>:";
 		cin.getline(inputBuff, inputBuffSize);
 		ss << "KEY_INPUT:" << inputBuff;
-		{
-			std::lock_guard<std::mutex> lk(eventMutex);
-			eventList.push_back(std::move(ss.str()));
-		}
-		eventCv.notify_all();
+		shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(-1, ss.str());
+		push(event);
 	}
 }
 
@@ -89,13 +83,34 @@ int UserAgent::setupConnection(
 	return ret;
 }
 
-#define enumToStr(val) Setstr(#val)
-
-UserAgent::UserAgent()
+void UserAgent::processEvent(shared_ptr<Event> evn)
 {
-	thread processor{ mem_fn(&UserAgent::eventProcessor), std::ref(*this) };
-	processor.detach();
+	switch (evn->eventType) {
+		case (EventType::ChatMsg):
+		{
+			auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
+			cout << "process event [ChatMsgEvent]:" << event->getEventInfo();
+		}
+		break;
+		case (EventType::Login):
+		{
+			auto event = std::static_pointer_cast<LoginEvent>(evn);
+			cout << "process event [LoginEvent]:" << event->getEventInfo();
+		}
+		break;
+		case (EventType::Logout):
+		{
+			auto event = std::static_pointer_cast<LogoutEvent>(evn);
+			cout << "process event [LogoutEvent]:" << event->getEventInfo();
+		}
+		break;
+		default:
+			break;
+	}
+
 }
+
+#define enumToStr(val) Setstr(#val)
 
 void UserAgent::start()
 {
@@ -133,8 +148,8 @@ void UserAgent::start()
 					cout << "connect error." << endl;
 					currState = UserState::WaitingUsername;
 				}
-				break;			
-			case UserState::Connected: 
+				break;
+			case UserState::Connected:
 			{
 				cout << "User connected." << endl;
 				thread handler(mem_fn(&UserAgent::inputHandlerFunc), std::ref(*this));

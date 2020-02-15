@@ -1,5 +1,6 @@
 #include "ChatServer.h"
 #include <functional>
+
 using std::cout;
 using std::endl;
 
@@ -14,11 +15,18 @@ int ChatServer::start()
 
 	socketServer.reset(new SocketServer(port));
 
+
+	//TODO ...
+
 	//auto f = std::mem_fn(&ChatServer::processEvent);
 
-	socketServer->onMessage([](const string& data) {
-		cout << "ChatServer got data: [" << data << "]" << endl;
-		});
+	//auto g = [this](const string& data) {};
+
+	//auto h = [](const string& data) {
+	//	cout << "ChatServer got data: [" << data << "]" << endl;
+	//};
+
+	//socketServer->onMessage(g);
 
 	auto ret = socketServer->start();
 	

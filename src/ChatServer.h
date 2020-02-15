@@ -10,6 +10,9 @@ using std::string;
 using std::shared_ptr;
 using std::unique_ptr;
 
+
+class SocketServer;
+
 class ChatServer
 {
 	string ip;
@@ -25,10 +28,5 @@ class ChatServer
 public:
 	ChatServer(string _ip, int _port);
 	int start();
-
-
-
-
-
 };
 

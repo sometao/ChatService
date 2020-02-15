@@ -1,6 +1,5 @@
 #include "SocketServer.h"
 #include <vector>
-
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
@@ -14,12 +13,6 @@ SocketServer::SocketServer(int _port) : port(_port)
 {
 	cout << "seting up connection on [" << port << "] ... " << endl;
 	setupConnect();
-}
-
-int SocketServer::onMessage(void(*f)(const string& data))
-{
-	handler = f;
-	return 0;
 }
 
 

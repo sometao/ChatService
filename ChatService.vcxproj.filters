@@ -57,6 +57,9 @@
     <ClInclude Include="src\EasyWay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EventProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="old\Client.cpp">

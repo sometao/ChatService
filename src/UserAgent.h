@@ -1,6 +1,7 @@
 #pragma once
 #include "constant.h"
 #include "ChatClient.h"
+#include "EventProcessor.h"
 #include <list>
 #include <iostream>
 #include <sstream>
@@ -20,7 +21,7 @@ using std::condition_variable;
 
 enum class UserState { WaitingUsername, WaitingPasswd, Connecting, Connected };
 
-class UserAgent {
+class UserAgent: public EventProcessor {
 
 	UserAgent(const UserAgent&) = delete;
 	UserAgent(const UserAgent&&) = delete;
@@ -28,17 +29,20 @@ class UserAgent {
 
 	UserState currState{ UserState::WaitingUsername };
 	unique_ptr<ChatClient> chatClient{ nullptr };
-	list<string> eventList{};
-	condition_variable eventCv{};
-	mutex eventMutex{};
 
 
-	void eventProcessor();
+	//list<string> eventList{};
+	//condition_variable eventCv{};
+	//mutex eventMutex{};
+	//void eventProcessor();
 
 	void inputHandlerFunc();
 
 
 	int setupConnection(string serverIp, int serverPort, string username, string passwd);
+
+protected:
+	virtual void processEvent(shared_ptr<Event> evn) override;
 
 
 public:
