@@ -9,7 +9,8 @@ using std::endl;
 using std::string;
 using std::vector;
 
-SocketServer::SocketServer(int _port) : port(_port)
+SocketServer::SocketServer(int _port, EventProcessor& processor) 
+	: port(_port), eventProcessor(processor)
 {
 	cout << "seting up connection on [" << port << "] ... " << endl;
 	setupConnect();
@@ -86,6 +87,12 @@ void SocketServer::selecting() {
 				handler(std::move(data));
 			}
 
+
+			//TODO go on here.
+			shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(-1, "");
+
+
+
 		}
 	}
 
@@ -144,6 +151,7 @@ int SocketServer::setupConnect()
 	return OK;
 }
 
+
 int SocketServer::start()
 {
 	if (isSelecting) {
@@ -156,4 +164,32 @@ int SocketServer::start()
 		isSelecting = false;
 		return OK;
 	}
+}
+
+void SocketServer::processEvent(shared_ptr<Event> evn) {
+
+	switch (evn->eventType) {
+		case (EventType::ChatMsg):
+		{
+			auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
+			cout << "process event [ChatMsgEvent]:" << event->getEventInfo();
+		}
+		break;
+		case (EventType::Login):
+		{
+			auto event = std::static_pointer_cast<LoginEvent>(evn);
+			cout << "process event [LoginEvent]:" << event->getEventInfo();
+		}
+		break;
+		case (EventType::Logout):
+		{
+			auto event = std::static_pointer_cast<LogoutEvent>(evn);
+			cout << "process event [LogoutEvent]:" << event->getEventInfo();
+		}
+		break;
+		default:
+			break;
+	}
+
+
 }

@@ -13,7 +13,7 @@ int ChatServer::start()
 {
 	cout << "chatServer[" << ip << ":" << port << "] starting..." << endl;
 
-	socketServer.reset(new SocketServer(port));
+	socketServer.reset(new SocketServer(port, *this));
 
 
 	//TODO ...
@@ -37,5 +37,10 @@ int ChatServer::start()
 	cout << "chatServer finish." << endl;
 
 	return 0;
+}
+
+void ChatServer::processEvent(shared_ptr<Event> evn)
+{
+	//TODO ...
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "EventProcessor.h"
 #include "constant.h"
 #include "SocketServer.h"
 #include "chatProtocol.h"
@@ -11,9 +12,8 @@ using std::shared_ptr;
 using std::unique_ptr;
 
 
-class SocketServer;
 
-class ChatServer
+class ChatServer: public EventProcessor
 {
 	string ip;
 	int port;
@@ -22,11 +22,18 @@ class ChatServer
 	std::condition_variable eventCv{};
 	std::mutex eventMutex{};
 
+
 	void processEvent(const string& data, ChatServer& server);
 
 
 public:
 	ChatServer(string _ip, int _port);
 	int start();
+
+
+
+protected:
+	void processEvent(shared_ptr<Event> evn) override final;
+
 };
 

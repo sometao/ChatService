@@ -42,11 +42,11 @@ class UserAgent: public EventProcessor {
 	int setupConnection(string serverIp, int serverPort, string username, string passwd);
 
 protected:
-	virtual void processEvent(shared_ptr<Event> evn) override;
+	void processEvent(shared_ptr<Event> evn) override final;
 
 
 public:
-	UserAgent();
+	UserAgent() {};
 	void start();
 
 
