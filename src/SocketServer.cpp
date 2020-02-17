@@ -9,8 +9,12 @@ using std::endl;
 using std::string;
 using std::vector;
 
+auto tmp2020a = [](int& p) {
+	return p; 
+};
+
 SocketServer::SocketServer(int _port, EventProcessor& processor) 
-	: port(_port), eventProcessor(processor)
+	: port(tmp2020a(_port) ), eventProcessor(processor)
 {
 	cout << "seting up connection on [" << port << "] ... " << endl;
 	setupConnect();
@@ -80,18 +84,9 @@ void SocketServer::selecting() {
 					g_clients.erase(it);
 				}
 			}
-			cout << "Receive msg from client socket[" << s << "] ";
+			cout << "Receive msg from client socket[" << s << "] " << endl;
 
-			string data{ buff };
-			if (handler != nullptr) {
-				handler(std::move(data));
-			}
-
-
-			//TODO go on here.
-			shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(-1, "");
-
-
+			eventProcessor.push(buff);
 
 		}
 	}
@@ -164,32 +159,4 @@ int SocketServer::start()
 		isSelecting = false;
 		return OK;
 	}
-}
-
-void SocketServer::processEvent(shared_ptr<Event> evn) {
-
-	switch (evn->eventType) {
-		case (EventType::ChatMsg):
-		{
-			auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
-			cout << "process event [ChatMsgEvent]:" << event->getEventInfo();
-		}
-		break;
-		case (EventType::Login):
-		{
-			auto event = std::static_pointer_cast<LoginEvent>(evn);
-			cout << "process event [LoginEvent]:" << event->getEventInfo();
-		}
-		break;
-		case (EventType::Logout):
-		{
-			auto event = std::static_pointer_cast<LogoutEvent>(evn);
-			cout << "process event [LogoutEvent]:" << event->getEventInfo();
-		}
-		break;
-		default:
-			break;
-	}
-
-
 }

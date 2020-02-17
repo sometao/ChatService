@@ -46,12 +46,10 @@ void UserAgent::inputHandlerFunc()
 
 	while (true)
 	{
-		ss.str(""); //clear buff.
 		memset(inputBuff, 0, inputBuffSize);
 		cout << "$>:";
 		cin.getline(inputBuff, inputBuffSize);
-		ss << "KEY_INPUT:" << inputBuff;
-		shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(-1, ss.str());
+		shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(-1, inputBuff);
 		push(event);
 	}
 }
@@ -62,7 +60,10 @@ int UserAgent::setupConnection(
 	const string username,
 	const string passwd) {
 	chatClient.reset(new ChatClient());
-	auto rsp = chatClient->connect(serverIp, serverPort, username, passwd);
+
+	LoginEvent loginEvent{ username, passwd };
+
+	auto rsp = chatClient->connect(serverIp, serverPort, loginEvent.toMsg());
 
 	int ret = ERR;
 	switch (rsp) {
@@ -89,19 +90,21 @@ void UserAgent::processEvent(shared_ptr<Event> evn)
 		case (EventType::ChatMsg):
 		{
 			auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
-			cout << "process event [ChatMsgEvent]:" << event->getEventInfo();
+			cout << "process event [ChatMsgEvent]:" << event->getEventInfo() << endl;
+			const string& msg = event->toMsg();
+			chatClient->sendMsg(msg);
 		}
 		break;
 		case (EventType::Login):
 		{
 			auto event = std::static_pointer_cast<LoginEvent>(evn);
-			cout << "process event [LoginEvent]:" << event->getEventInfo();
+			cout << "process event [LoginEvent]:" << event->getEventInfo() << endl;
 		}
 		break;
 		case (EventType::Logout):
 		{
 			auto event = std::static_pointer_cast<LogoutEvent>(evn);
-			cout << "process event [LogoutEvent]:" << event->getEventInfo();
+			cout << "process event [LogoutEvent]:" << event->getEventInfo() << endl;
 		}
 		break;
 		default:
@@ -115,12 +118,15 @@ void UserAgent::processEvent(shared_ptr<Event> evn)
 void UserAgent::start()
 {
 
+	using namespace std::chrono_literals;
+
 	const size_t inputBuffSize = 1024;
 	char inputBuff[inputBuffSize];
 
 	string username{};
 	string passwd{};
 
+	std::this_thread::sleep_for(500ms);
 
 	while (true)
 	{

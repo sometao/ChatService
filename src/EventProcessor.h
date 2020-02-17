@@ -24,7 +24,7 @@ using std::exception;
 class EventProcessor
 {
 public:
-	enum class EventType { Login, Logout, ChatMsg };
+	enum class EventType { Login, ChatMsg, Logout };
 
 	/*
 	* toString:  EventTypeId|member1|member2
@@ -35,11 +35,11 @@ public:
 		Event(const EventType& t) : eventType(t) {};
 		const EventType eventType;
 		virtual string getEventInfo() = 0;
-		virtual string toString() = 0;
+		virtual string toMsg() = 0;
 	};
 
 	struct LoginEvent final : Event {
-		LoginEvent(const string& u, const string& p) 
+		LoginEvent(const string& u, const string& p)
 			: Event{ EventType::Login }, username(u), passwd(p) {};
 
 		static shared_ptr<LoginEvent> create(const string& data) {
@@ -86,7 +86,7 @@ public:
 			return s;
 		}
 
-		string toString() override {
+		string toMsg() override {
 			stringstream ss{};
 			ss << static_cast<int>(eventType) << "|";
 			ss << username << "|";
@@ -97,13 +97,15 @@ public:
 
 	struct ChatMsgEvent final : Event {
 		ChatMsgEvent(int cid_, const string& words_) : Event{ EventType::ChatMsg }, cid(cid_), words(words_) {};
-		
+
 		static shared_ptr<ChatMsgEvent> create(const string& data) {
+
+			cout << "for debug: ChatMsgEvent create input=[" << data << "]" << endl;
 
 			shared_ptr<ChatMsgEvent> ptr{};
 			bool parseFailed = false;
 
-			const int len = 256;
+			const int len = 1024;
 			char buff[len]{};
 			if (data[0] == '1') {
 				try {
@@ -123,9 +125,10 @@ public:
 			}
 
 			if (parseFailed) {
-				string info{ "ChatMsgEvent parse failed for [" };
+				string info{ "ERROR INFO: ChatMsgEvent parse failed for [" };
 				info += data;
 				info += "]";
+				cout << info << endl;
 				throw info;
 			} else {
 				return ptr;
@@ -136,14 +139,14 @@ public:
 		const string words;
 		string getEventInfo() override {
 			string s{ "[ChatMsg, cid=" };
-			s += cid;
+			s += std::to_string(cid);
 			s += ", words=";
 			s += words;
 			s += "]";
 			return s;
 		}
 
-		string toString() override {
+		string toMsg() override {
 			stringstream ss{};
 			ss << static_cast<int>(eventType) << "|";
 			ss << cid << "|";
@@ -188,7 +191,7 @@ public:
 			return s;
 		}
 
-		string toString() override {
+		string toMsg() override {
 			stringstream ss{};
 			ss << static_cast<int>(eventType) << "|";
 			return ss.str();
@@ -213,7 +216,7 @@ private:
 				try {
 					event = targetList.front();
 					targetList.pop_front();
-					cout << "EventProcessor: got event:" << event->getEventInfo() << endl;
+					//cout << "for debug EventProcessor: got event:" << event->getEventInfo() << endl;
 					processEvent(event);
 				} catch (const exception & ex) {
 					if (event != nullptr) {
@@ -234,7 +237,7 @@ private:
 				lk.lock();
 				cv.wait(lk, [this] {return !eventList.empty(); });
 				targetList.swap(eventList);
-				cout << "EventProcessor targetList swap." << endl;
+				//cout << "for debug EventProcessor targetList swap." << endl;
 				lk.unlock();
 			}
 		}
@@ -252,6 +255,34 @@ public:
 		eventList.push_back(evn);
 		mx.unlock();
 		cv.notify_one();
+	};
+
+	void push(const string& evnStr) {
+
+		shared_ptr<EventProcessor::Event> event{};
+		switch (evnStr[0])
+		{
+			case '0':
+				event = EventProcessor::LoginEvent::create(evnStr);
+				break;
+			case '1':
+				event = EventProcessor::ChatMsgEvent::create(evnStr);
+				break;
+			case '2':
+				event = EventProcessor::LogoutEvent::create(evnStr);
+				break;
+			default:
+				break;
+		}
+
+		if (event != nullptr) {
+			mx.lock();
+			eventList.push_back(event);
+			mx.unlock();
+			cv.notify_one();
+		} else {
+			cout << "parse failed:" << evnStr << endl;
+		}
 	};
 
 protected:

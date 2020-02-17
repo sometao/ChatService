@@ -5,25 +5,22 @@ using std::endl;
 using std::string;
 using std::stringstream;
 
-ConnectRsp ChatClient::connect(string ip, int port, string username, string passwd)
+ConnectRsp ChatClient::connect(string ip, int port, string loginMsg)
 {
 	socketClient.reset(new SocketClient());
 	if (ERR == socketClient->connectServerSocket(ip, port)) {
 		return ConnectRsp::ConnectError;
 	}
 
-	string loginMsg = buildLoginMsg(username, passwd);
-
 	sendMsg(loginMsg);
-
 	return ConnectRsp::ConnectSuccess;
 }
 
-int ChatClient::sendChat(const int& cid, const string& chat)
-{
-	sendMsg(chat);
-	return 0;
-}
+//int ChatClient::sendChat(const int& cid, const string& chat)
+//{
+//	sendMsg(chat);
+//	return 0;
+//}
 
 int ChatClient::sendMsg(const string& msg)
 {

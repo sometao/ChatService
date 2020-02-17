@@ -4,8 +4,8 @@
 #include <winsock2.h>
 
 using std::string;
-//TODO: set base class EventProcessor.
-class SocketServer: public EventProcessor
+
+class SocketServer
 {
 
 	int port;
@@ -14,8 +14,6 @@ class SocketServer: public EventProcessor
 	EventProcessor& eventProcessor;
 
 	void selecting();
-
-	void (*handler)(const string&) = nullptr;
 
 	int readSocketData(const SOCKET s, char* const buff, const int buffSize);
 	int setupConnect();
@@ -32,10 +30,6 @@ public:
 	int kick(unsigned int connectId);
 	int close();
 	int start();
-
-protected:
-	void processEvent(shared_ptr<Event> evn) override final;
-
 
 };
 

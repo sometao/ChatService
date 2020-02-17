@@ -39,7 +39,7 @@ int SocketClient::socketClientSend(char* sendBuff, unsigned int len)
 
 	//cout << "send msg begin:" << sendBuff << endl;
 	if (send(clientSocket, sendBuff, len, 0) == SOCKET_ERROR) {
-		cout << "send msg err" << endl;
+		cout << "send msg err: data=" << sendBuff << endl;
 		closesocket(clientSocket);
 		WSACleanup();
 		return ERR;

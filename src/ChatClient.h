@@ -1,6 +1,7 @@
 #pragma once
 #include "constant.h"
 #include "SocketClient.h"
+#include "EventProcessor.h"
 #include <sstream>
 
 using std::string;
@@ -16,32 +17,31 @@ class ChatClient
 {
 
 	unique_ptr<SocketClient> socketClient{};
-	int sendMsg(const string& msg);
 
-	static string buildMsg(
-		const string& cmd, 
-		const string& cid, 
-		const string& parameters) {
-		stringstream ss{};
-		ss << "cmd:" << cmd << ";";
-		ss << "cid:" << cid << ";";
-		ss << "parameters:" << parameters << ";\n";
-		return ss.str();
-	}
+	//static string buildMsg(
+	//	const string& cmd, 
+	//	const string& cid, 
+	//	const string& parameters) {
+	//	stringstream ss{};
+	//	ss << "cmd:" << cmd << ";";
+	//	ss << "cid:" << cid << ";";
+	//	ss << "parameters:" << parameters << ";\n";
+	//	return ss.str();
+	//}
 
-	static string buildLoginMsg(const string& name, const string& passwd) {
-		stringstream ss{};
-		ss << "name=" << name << ",";
-		ss << "passwd=" << passwd;
-		return buildMsg(CMD_LOGIN, CID_DEFAULT, ss.str());
-	}
+	//static string buildLoginMsg(const string& name, const string& passwd) {
+	//	stringstream ss{};
+	//	ss << "name=" << name << ",";
+	//	ss << "passwd=" << passwd;
+	//	return buildMsg(CMD_LOGIN, CID_DEFAULT, ss.str());
+	//}
 
 
 public:
 
-	ConnectRsp connect(string ip, int port, string username, string passwd);
+	ConnectRsp connect(string ip, int port, string loginMsg);
 	int close();
-	int sendChat(const int& cid, const string& chat);
+	int sendMsg(const string& loginMsg);
 
 
 };
