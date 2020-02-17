@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="old\resource.h" />
-    <ClInclude Include="old\testheader.h" />
     <ClInclude Include="src\ChatClient.h" />
     <ClInclude Include="src\chatProtocol.h" />
     <ClInclude Include="src\ChatServer.h" />

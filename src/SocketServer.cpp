@@ -1,162 +1,148 @@
 #include "SocketServer.h"
-#include <vector>
-#include <winsock2.h>
+
 #include <WS2tcpip.h>
-#pragma comment (lib, "ws2_32.lib")
+#include <winsock2.h>
+
+#include <vector>
+#pragma comment(lib, "ws2_32.lib")
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
 
-auto tmp2020a = [](int& p) {
-	return p; 
-};
+auto tmp2020a = [](int& p) { return p; };
 
-SocketServer::SocketServer(int _port, EventProcessor& processor) 
-	: port(tmp2020a(_port) ), eventProcessor(processor)
-{
-	cout << "seting up connection on [" << port << "] ... " << endl;
-	setupConnect();
+SocketServer::SocketServer(int _port, EventProcessor& processor)
+    : port(tmp2020a(_port)), eventProcessor(processor) {
+  cout << "seting up connection on [" << port << "] ... " << endl;
+  setupConnect();
 }
-
 
 void SocketServer::selecting() {
+  cout << "Start select." << endl;
 
-	cout << "Start select." << endl;
+  vector<SOCKET> g_clients{};
+  char buff[BUFFER_SIZE] = {};
 
-	vector<SOCKET> g_clients{};
-	char buff[BUFFER_SIZE] = {};
+  while (true) {
+    fd_set fdRead;
+    fd_set fdWrite;
+    fd_set fdExcept;
 
-	while (true)
-	{
+    FD_ZERO(&fdRead);
+    FD_ZERO(&fdWrite);
+    FD_ZERO(&fdExcept);
 
-		fd_set fdRead;
-		fd_set fdWrite;
-		fd_set fdExcept;
+    FD_SET(serverSocket, &fdRead);
+    FD_SET(serverSocket, &fdWrite);
+    FD_SET(serverSocket, &fdExcept);
 
-		FD_ZERO(&fdRead);
-		FD_ZERO(&fdWrite);
-		FD_ZERO(&fdExcept);
+    for (size_t i = 0; i < g_clients.size(); i++) {
+      FD_SET(g_clients[i], &fdRead);
+    }
 
-		FD_SET(serverSocket, &fdRead);
-		FD_SET(serverSocket, &fdWrite);
-		FD_SET(serverSocket, &fdExcept);
+    // timeval timeInterval = { 1, 0 };
 
+    int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, nullptr);
+    // cout << "select once..." << endl;
 
-		for (size_t i = 0; i < g_clients.size(); i++) {
-			FD_SET(g_clients[i], &fdRead);
-		}
+    if (ret < 0) {
+      cout << "select task complete." << endl;
+      break;
+    }
 
-		//timeval timeInterval = { 1, 0 };
+    if (FD_ISSET(serverSocket, &fdRead)) {
+      FD_CLR(serverSocket, &fdRead);
 
-		int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, nullptr);
-		//cout << "select once..." << endl;
+      cout << "waiting connect..." << endl;
+      SOCKADDR_IN clientAddr = {};
+      int socketAddrLen = sizeof(SOCKADDR_IN);
+      SOCKET clientSocket = INVALID_SOCKET;
+      clientSocket =
+          accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
+      if (INVALID_SOCKET == clientSocket) {
+        cout << "accept client socket error." << endl;
+        continue;
+      }
 
-		if (ret < 0) {
-			cout << "select task complete." << endl;
-			break;
-		}
+      cout << "got connection: " << clientSocket << endl;
 
-		if (FD_ISSET(serverSocket, &fdRead)) {
-			FD_CLR(serverSocket, &fdRead);
+      g_clients.push_back(clientSocket);
+    }
 
-			cout << "waiting connect..." << endl;
-			SOCKADDR_IN clientAddr = {};
-			int socketAddrLen = sizeof(SOCKADDR_IN);
-			SOCKET clientSocket = INVALID_SOCKET;
-			clientSocket = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
-			if (INVALID_SOCKET == clientSocket) {
-				cout << "accept client socket error." << endl;
-				continue;
-			}
+    for (size_t n = 0; n < fdRead.fd_count; n++) {
+      auto s = fdRead.fd_array[n];
+      if (readSocketData(s, buff, BUFFER_SIZE) == ERR) {
+        auto it = find(g_clients.begin(), g_clients.end(), fdRead.fd_array[n]);
+        if (it != g_clients.end()) {
+          g_clients.erase(it);
+        }
+      }
+      cout << "Receive msg from client socket[" << s << "] " << endl;
 
-			cout << "got connection: " << clientSocket << endl;
+      eventProcessor.push(buff);
+    }
+  }
 
-			g_clients.push_back(clientSocket);
-		}
-
-		for (size_t n = 0; n < fdRead.fd_count; n++) {
-			auto s = fdRead.fd_array[n];
-			if (readSocketData(s, buff, BUFFER_SIZE) == ERR) {
-				auto it = find(g_clients.begin(), g_clients.end(), fdRead.fd_array[n]);
-				if (it != g_clients.end()) {
-					g_clients.erase(it);
-				}
-			}
-			cout << "Receive msg from client socket[" << s << "] " << endl;
-
-			eventProcessor.push(buff);
-
-		}
-	}
-
-	cout << "End select." << endl;
+  cout << "End select." << endl;
 }
 
-int SocketServer::readSocketData(const SOCKET s, char* const buff, const int buffSize)
-{
-	memset(buff, 0, buffSize);
-	int rcvLen = recv(s, buff, buffSize - 1, 0);
-	if (rcvLen < 0) {
-		cout << "socket [" << static_cast<int>(s) << " disconnected." << endl;
-		return ERR;
-	} else {
-		cout << "debug: receive data len=[" << rcvLen << "]" << endl;
-		return OK;
-	}
-
+int SocketServer::readSocketData(const SOCKET s, char* const buff,
+                                 const int buffSize) {
+  memset(buff, 0, buffSize);
+  int rcvLen = recv(s, buff, buffSize - 1, 0);
+  if (rcvLen < 0) {
+    cout << "socket [" << static_cast<int>(s) << " disconnected." << endl;
+    return ERR;
+  } else {
+    cout << "debug: receive data len=[" << rcvLen << "]" << endl;
+    return OK;
+  }
 }
 
+int SocketServer::setupConnect() {
+  WSADATA wsaData = {};
 
-int SocketServer::setupConnect()
-{
+  SOCKADDR_IN serverAddr = {0};
 
-	WSADATA	wsaData = {};
+  serverAddr.sin_family = AF_INET;
+  serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+  serverAddr.sin_port = htons(port);
 
+  if (WSAStartup(SOCKET_VERSION, &wsaData) != OK) {
+    cout << "WSAStartup error." << endl;
+    return ERR;
+  }
 
-	SOCKADDR_IN serverAddr = { 0 };
+  serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) ==
+      SOCKET_ERROR) {
+    closesocket(serverSocket);
+    WSACleanup();
+    cout << "bind error." << endl;
+    return ERR;
+  }
 
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	serverAddr.sin_port = htons(port);
+  if (listen(serverSocket, BACKLOG) == SOCKET_ERROR) {
+    closesocket(serverSocket);
+    WSACleanup();
+    cout << "listen error." << endl;
+    return ERR;
+  }
 
-	if (WSAStartup(SOCKET_VERSION, &wsaData) != OK) {
-		cout << "WSAStartup error." << endl;
-		return ERR;
-	}
+  cout << "server socket listening: [" << port << "] success." << endl;
 
-	serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR) {
-		closesocket(serverSocket);
-		WSACleanup();
-		cout << "bind error." << endl;
-		return ERR;
-	}
-
-	if (listen(serverSocket, BACKLOG) == SOCKET_ERROR) {
-		closesocket(serverSocket);
-		WSACleanup();
-		cout << "listen error." << endl;
-		return ERR;
-	}
-
-	cout << "server socket listening: [" << port << "] success." << endl;
-
-	return OK;
+  return OK;
 }
 
-
-int SocketServer::start()
-{
-	if (isSelecting) {
-		return ERR;
-	}
-	else
-	{
-		isSelecting = true;
-		selecting();
-		isSelecting = false;
-		return OK;
-	}
+int SocketServer::start() {
+  if (isSelecting) {
+    return ERR;
+  } else {
+    isSelecting = true;
+    selecting();
+    isSelecting = false;
+    return OK;
+  }
 }

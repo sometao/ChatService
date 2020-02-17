@@ -1,206 +1,181 @@
-#include "stdafx.h"
-#include "constant.h"
-
 #include <thread>
 #include <vector>
+
+#include "../src/constant.h"
+#include "../src/stdafx.h"
 
 using namespace std;
 
 int chatWorker(SOCKET &clientSocket, SOCKADDR_IN &clientAddr) {
+  char receiveBuffer[BUFFER_SIZE] = {0};
+  char sendBuffer[BUFFER_SIZE] = {0};
 
-	char receiveBuffer[BUFFER_SIZE] = { 0 };
-	char sendBuffer[BUFFER_SIZE] = { 0 };
+  // char* remoteIp = inet_ntoa(clientAddr.sin_addr);
+  char remoteIp[256] = {0};
+  inet_ntop(AF_INET, (void *)&clientAddr.sin_addr, remoteIp, sizeof(remoteIp));
+  int clientPort = ntohs(clientAddr.sin_port);
 
+  while (1) {
+    memset(receiveBuffer, 0, BUFFER_SIZE);
+    int rcvLen = recv(clientSocket, receiveBuffer, BUFFER_SIZE - 1, 0);
+    cout << "receive data len=[" << rcvLen << "]" << endl;
 
-	//char* remoteIp = inet_ntoa(clientAddr.sin_addr);
-	char remoteIp[256] = {0};
-	inet_ntop(AF_INET, (void *)&clientAddr.sin_addr, remoteIp, sizeof(remoteIp));
-	int clientPort = ntohs(clientAddr.sin_port);
+    if (strcmp(receiveBuffer, "shutdown") == 0) {
+      cout << "got [shutdown] msg, shut server down." << endl;
+      break;
+    }
 
+    memset(sendBuffer, 0, BUFFER_SIZE);
+    strcat_s(sendBuffer, "Thank you for your message[");
+    strcat_s(sendBuffer, receiveBuffer);
+    strcat_s(sendBuffer, "]");
 
-	while (1) {
+    if (send(clientSocket, sendBuffer, strlen(sendBuffer) + 1, 0) < 0) {
+      cout << "send reply error." << endl;
+    }
 
-		memset(receiveBuffer, 0, BUFFER_SIZE);
-		int rcvLen = recv(clientSocket, receiveBuffer, BUFFER_SIZE - 1, 0);
-		cout << "receive data len=[" << rcvLen << "]" << endl;
+    cout << "Receive msg from [" << remoteIp << ":" << clientPort << "]";
+    cout << "data: [" << receiveBuffer << "]" << endl;
+  }
 
-		if (strcmp(receiveBuffer, "shutdown") == 0) {
-			cout << "got [shutdown] msg, shut server down." << endl;
-			break;
-		}
+  cout << "client socket [" << remoteIp << ":" << clientPort << "] close."
+       << endl;
 
-		memset(sendBuffer, 0, BUFFER_SIZE);
-		strcat_s(sendBuffer, "Thank you for your message[");
-		strcat_s(sendBuffer, receiveBuffer);
-		strcat_s(sendBuffer, "]");
+  closesocket(clientSocket);
 
-		if (send(clientSocket, sendBuffer, strlen(sendBuffer) + 1, 0) < 0) {
-			cout << "send reply error." << endl;
-		}
-
-		cout << "Receive msg from [" << remoteIp << ":" << clientPort << "]";
-		cout << "data: [" << receiveBuffer << "]" << endl;
-	}
-
-	cout << "client socket [" << remoteIp << ":" << clientPort << "] close." << endl;
-
-	closesocket(clientSocket);
-
-
-	return OK;
+  return OK;
 }
 
-int chatWorking(SOCKET& clientSocket) {
+int chatWorking(SOCKET &clientSocket) {
+  char receiveBuffer[BUFFER_SIZE] = {0};
+  char sendBuffer[BUFFER_SIZE] = {0};
 
-	char receiveBuffer[BUFFER_SIZE] = { 0 };
-	char sendBuffer[BUFFER_SIZE] = { 0 };
+  memset(receiveBuffer, 0, BUFFER_SIZE);
+  int rcvLen = recv(clientSocket, receiveBuffer, BUFFER_SIZE - 1, 0);
+  cout << "receive data len=[" << rcvLen << "]" << endl;
 
-	memset(receiveBuffer, 0, BUFFER_SIZE);
-	int rcvLen = recv(clientSocket, receiveBuffer, BUFFER_SIZE - 1, 0);
-	cout << "receive data len=[" << rcvLen << "]" << endl;
+  if (strcmp(receiveBuffer, "shutdown") == 0) {
+    cout << "got [shutdown] msg" << endl;
+    return ERR;
+  } else {
+    memset(sendBuffer, 0, BUFFER_SIZE);
+    strcat_s(sendBuffer, "Thank you for your message[");
+    strcat_s(sendBuffer, receiveBuffer);
+    strcat_s(sendBuffer, "]");
 
-	if (strcmp(receiveBuffer, "shutdown") == 0) {
-		cout << "got [shutdown] msg" << endl;
-		return ERR;
-	}
-	else
-	{
-		memset(sendBuffer, 0, BUFFER_SIZE);
-		strcat_s(sendBuffer, "Thank you for your message[");
-		strcat_s(sendBuffer, receiveBuffer);
-		strcat_s(sendBuffer, "]");
+    if (send(clientSocket, sendBuffer, strlen(sendBuffer) + 1, 0) < 0) {
+      cout << "send reply error." << endl;
+    }
 
-		if (send(clientSocket, sendBuffer, strlen(sendBuffer) + 1, 0) < 0) {
-			cout << "send reply error." << endl;
-		}
-
-		cout << "Receive msg ";
-		cout << "data: [" << receiveBuffer << "]" << endl;
-		return OK;
-	}
-
+    cout << "Receive msg ";
+    cout << "data: [" << receiveBuffer << "]" << endl;
+    return OK;
+  }
 }
-
 
 int processor(SOCKET s) {
-	int ret = chatWorking(s);
-	return ret;
+  int ret = chatWorking(s);
+  return ret;
 }
-
 
 int startMultiThreadServer(int port) {
+  cout << "welcome startMultiThreadServer." << endl;
 
-	cout << "welcome startMultiThreadServer." << endl;
+  const int BACKLOG = 15;
 
-	const int BACKLOG = 15;
+  WSADATA wsaData;
+  SOCKADDR_IN serverAddr = {0};
+  int socketAddrLen = sizeof(SOCKADDR_IN);
 
-	WSADATA	wsaData;
-	SOCKADDR_IN serverAddr = { 0 };
-	int socketAddrLen = sizeof(SOCKADDR_IN);
+  serverAddr.sin_family = AF_INET;
+  serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+  serverAddr.sin_port = htons(port);
 
+  if (WSAStartup(SOCKET_VERSION, &wsaData) != OK) {
+    cout << "WSAStartup error." << endl;
+    return ERR;
+  }
 
+  SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (bind(serverSocket, (SOCKADDR *)&serverAddr, sizeof(SOCKADDR)) ==
+      SOCKET_ERROR) {
+    closesocket(serverSocket);
+    WSACleanup();
+    cout << "bind error." << endl;
+    return ERR;
+  }
 
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	serverAddr.sin_port = htons(port);
+  if (listen(serverSocket, BACKLOG) < 0) {
+    closesocket(serverSocket);
+    WSACleanup();
+    cout << "listen error." << endl;
+    return ERR;
+  }
 
-	if (WSAStartup(SOCKET_VERSION, &wsaData) != OK) {
-		cout << "WSAStartup error." << endl;
-		return ERR;
-	}
+  cout << "server listening: [" << port << "] success." << endl;
 
-	SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR)) == SOCKET_ERROR) {
-		closesocket(serverSocket);
-		WSACleanup();
-		cout << "bind error." << endl;
-		return ERR;
-	}
+  vector<SOCKET> g_clients;
 
-	if (listen(serverSocket, BACKLOG) < 0) {
-		closesocket(serverSocket);
-		WSACleanup();
-		cout << "listen error." << endl;
-		return ERR;
-	}
+  while (true) {
+    fd_set fdRead;
+    fd_set fdWrite;
+    fd_set fdExcept;
 
-	cout << "server listening: [" << port << "] success." << endl;
+    FD_ZERO(&fdRead);
+    FD_ZERO(&fdWrite);
+    FD_ZERO(&fdExcept);
 
-	vector<SOCKET> g_clients;
+    FD_SET(serverSocket, &fdRead);
+    FD_SET(serverSocket, &fdWrite);
+    FD_SET(serverSocket, &fdExcept);
 
-	while (true)
-	{
+    for (size_t i = 0; i < g_clients.size(); i++) {
+      FD_SET(g_clients[i], &fdRead);
+    }
 
-		fd_set fdRead;
-		fd_set fdWrite;
-		fd_set fdExcept;
+    timeval timeInterval = {0, 200};
 
-		FD_ZERO(&fdRead);
-		FD_ZERO(&fdWrite);
-		FD_ZERO(&fdExcept);
+    int ret =
+        select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
+    cout << "select once..." << endl;
 
-		FD_SET(serverSocket, &fdRead);
-		FD_SET(serverSocket, &fdWrite);
-		FD_SET(serverSocket, &fdExcept);
+    if (ret < 0) {
+      cout << "select task complete." << endl;
+      break;
+    }
 
-		
-		for (size_t i = 0; i < g_clients.size(); i++) {
-			FD_SET(g_clients[i], &fdRead);
-		}
+    if (FD_ISSET(serverSocket, &fdRead)) {
+      FD_CLR(serverSocket, &fdRead);
 
-		timeval timeInterval = { 0, 200 };
+      cout << "waiting connect..." << endl;
+      SOCKADDR_IN clientAddr;
+      SOCKET clientSocket =
+          accept(serverSocket, (SOCKADDR *)&clientAddr, &socketAddrLen);
+      if (INVALID_SOCKET == clientSocket) {
+        cout << "accept client socket error." << endl;
+        continue;
+      }
 
-		int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
-		cout << "select once..." << endl;
+      cout << "got connection: " << clientSocket << endl;
 
-		if (ret < 0) {
-			cout << "select task complete." << endl;
-			break;
-		}
+      g_clients.push_back(clientSocket);
+    }
 
-		if (FD_ISSET(serverSocket, &fdRead)) {
-			FD_CLR(serverSocket, &fdRead);
+    for (size_t n = 0; n < fdRead.fd_count; n++) {
+      if (processor(fdRead.fd_array[n]) == -1) {
+        auto it = find(g_clients.begin(), g_clients.end(), fdRead.fd_array[n]);
+        if (it != g_clients.end()) {
+          g_clients.erase(it);
+        }
+      }
+    }
 
-			cout << "waiting connect..." << endl;
-			SOCKADDR_IN clientAddr;
-			SOCKET clientSocket = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
-			if (INVALID_SOCKET == clientSocket) {
-				cout << "accept client socket error." << endl;
-				continue;
-			}
+    // chatWorker(clientSocket, clientAddr);
 
-			cout << "got connection: " << clientSocket << endl;
+    // thread work(chatWorker, ref(clientSocket), ref(clientAddr));
+  }
 
-			g_clients.push_back(clientSocket);
-		}
-
-		for (size_t n = 0; n < fdRead.fd_count; n++) {
-			if (processor(fdRead.fd_array[n]) == -1) {
-				auto it = find(g_clients.begin(), g_clients.end(), fdRead.fd_array[n]);
-				if (it != g_clients.end()) {
-					g_clients.erase(it);
-				}
-			}
-		}
-
-
-		//chatWorker(clientSocket, clientAddr);
-
-		//thread work(chatWorker, ref(clientSocket), ref(clientAddr));
-	}
-
-
-
-	closesocket(serverSocket);
-	WSACleanup();
-	return OK;
+  closesocket(serverSocket);
+  WSACleanup();
+  return OK;
 }
-
-
-
-
-
-
-
-
-

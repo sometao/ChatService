@@ -27,9 +27,6 @@
     <ClInclude Include="old\resource.h">
       <Filter>Source Files\old</Filter>
     </ClInclude>
-    <ClInclude Include="old\testheader.h">
-      <Filter>Source Files\old</Filter>
-    </ClInclude>
     <ClInclude Include="src\ChatClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
