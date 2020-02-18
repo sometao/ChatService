@@ -22,7 +22,6 @@
     <ClInclude Include="old\resource.h" />
     <ClInclude Include="src\ChatClient.h" />
     <ClInclude Include="src\chatProtocol.h" />
-    <ClInclude Include="src\ChatServer.h" />
     <ClInclude Include="src\constant.h" />
     <ClInclude Include="src\EasyWay.h" />
     <ClInclude Include="src\EventProcessor.h" />
@@ -37,7 +36,6 @@
     <ClCompile Include="old\MultiThreadServer.cpp" />
     <ClCompile Include="old\Server.cpp" />
     <ClCompile Include="src\ChatClient.cpp" />
-    <ClCompile Include="src\ChatServer.cpp" />
     <ClCompile Include="src\Launcher.cpp" />
     <ClCompile Include="src\SocketClient.cpp" />
     <ClCompile Include="src\SocketServer.cpp" />

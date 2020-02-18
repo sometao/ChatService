@@ -20,8 +20,6 @@ class ChatServer : public EventProcessor {
   std::condition_variable eventCv{};
   std::mutex eventMutex{};
 
-  void processEvent(const string& data, ChatServer& server);
-
  public:
   ChatServer(string _ip, int _port);
   int start();

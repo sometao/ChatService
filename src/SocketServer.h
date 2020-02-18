@@ -1,8 +1,9 @@
 #pragma once
 #include <winsock2.h>
-
+#include <map>
 #include "EventProcessor.h"
 #include "constant.h"
+
 
 using std::string;
 
@@ -10,7 +11,15 @@ class SocketServer {
   int port;
   boolean isSelecting = false;
   SOCKET serverSocket{INVALID_SOCKET};
-  EventProcessor& eventProcessor;
+  std::map<unsigned int, string> clientsWithUserName{};
+  std::map<string, unsigned int> usernameToSocketIdMap{};
+
+
+  
+  const std::map<string, string> userPasswdMap{
+    {"zz", "123"},
+    {"tt", "321"},
+  };
 
   void selecting();
 
@@ -18,15 +27,18 @@ class SocketServer {
   int setupConnect();
 
  public:
-  SocketServer(int _port, EventProcessor& eventProcessor);
-
-  int onConnect(void (*f)(char* clientIp, unsigned int connectId));
-  int onMessage(void (*f)(const string&));
-  int onClientClose(void (*f)(unsigned int connectId));
+  SocketServer(int _port);
 
   int send(unsigned int connectId, char* data, unsigned int len);
 
-  int kick(unsigned int connectId);
-  int close();
+  string getUsernameByClientId(unsigned clientId) const;
+
+  bool kick(unsigned int connectId);
+
   int start();
+
+  void clientConnet(unsigned int clientId);
+
+  bool loginAuth(unsigned int clientId, string user, string passwd);
+
 };

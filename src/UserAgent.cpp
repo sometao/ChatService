@@ -43,11 +43,13 @@ void UserAgent::inputHandlerFunc() {
   const size_t inputBuffSize = 2048;
   char inputBuff[inputBuffSize] = {};
 
+  string peer{"X"};
+
   while (true) {
     memset(inputBuff, 0, inputBuffSize);
     cout << "$>:";
     cin.getline(inputBuff, inputBuffSize);
-    shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(-1, inputBuff);
+    shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(peer, inputBuff);
     push(event);
   }
 }
@@ -111,7 +113,7 @@ void UserAgent::start() {
   string username{};
   string passwd{};
 
-  std::this_thread::sleep_for(500ms);
+  std::this_thread::sleep_for(100ms);
 
   while (true) {
     memset(inputBuff, 0, inputBuffSize);

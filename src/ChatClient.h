@@ -18,11 +18,11 @@ class ChatClient {
 
   // static string buildMsg(
   //	const string& cmd,
-  //	const string& cid,
+  //	const string& peerUsername,
   //	const string& parameters) {
   //	stringstream ss{};
   //	ss << "cmd:" << cmd << ";";
-  //	ss << "cid:" << cid << ";";
+  //	ss << "peerUsername:" << peerUsername << ";";
   //	ss << "parameters:" << parameters << ";\n";
   //	return ss.str();
   //}

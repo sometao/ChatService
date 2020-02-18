@@ -92,8 +92,8 @@ class EventProcessor {
   };
 
   struct ChatMsgEvent final : Event {
-    ChatMsgEvent(int cid_, const string& words_)
-        : Event{EventType::ChatMsg}, cid(cid_), words(words_){};
+    ChatMsgEvent(const string& peer, const string& words_)
+        : Event{EventType::ChatMsg}, peerUsername(peer), words(words_){};
 
     static shared_ptr<ChatMsgEvent> create(const string& data) {
       cout << "for debug: ChatMsgEvent create input=[" << data << "]" << endl;
@@ -109,10 +109,10 @@ class EventProcessor {
           ss.getline(buff, len, '|');
           // skip eventType id;
           ss.getline(buff, len, '|');
-          int cid{std::stoi(buff)};
+          string peerUsername{buff};
           ss.getline(buff, len, '|');
           string words{buff};
-          ptr.reset(new ChatMsgEvent(cid, words));
+          ptr.reset(new ChatMsgEvent(peerUsername, words));
         } catch (...) {
           parseFailed = true;
         }
@@ -131,11 +131,11 @@ class EventProcessor {
       }
     }
 
-    const int cid;
+    const string peerUsername;
     const string words;
     string getEventInfo() override {
-      string s{"[ChatMsg, cid="};
-      s += std::to_string(cid);
+      string s{"[ChatMsg, peerUsername="};
+      s += peerUsername;
       s += ", words=";
       s += words;
       s += "]";
@@ -145,7 +145,7 @@ class EventProcessor {
     string toMsg() override {
       stringstream ss{};
       ss << static_cast<int>(eventType) << "|";
-      ss << cid << "|";
+      ss << peerUsername << "|";
       ss << words << "|";
       return ss.str();
     }
@@ -275,7 +275,7 @@ class EventProcessor {
       mx.unlock();
       cv.notify_one();
     } else {
-      cout << "parse failed:" << evnStr << endl;
+      cout << "EventProcessor push parse failed: [" << evnStr << "]" << endl;
     }
   };
 

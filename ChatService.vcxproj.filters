@@ -30,9 +30,6 @@
     <ClInclude Include="src\ChatClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ChatServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SocketClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -82,9 +79,6 @@
     </ClCompile>
     <ClCompile Include="src\UserAgent.cpp">
       <Filter>Source Files\client</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ChatServer.cpp">
-      <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="src\SocketServer.cpp">
       <Filter>Source Files\server</Filter>

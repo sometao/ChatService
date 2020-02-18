@@ -1,6 +1,8 @@
-#include "ChatServer.h"
+#include "SocketServer.h"
 #include "UserAgent.h"
 #include "constant.h"
+
+
 
 int main(int argc, char* argv[]) {
   using std::cout;
@@ -42,7 +44,7 @@ int main(int argc, char* argv[]) {
       if (argc == 3) {
         int port = stoi(argv[2], 0, 10);
         cout << "start server on port [" << port << "]" << endl;
-        ChatServer server("127.0.0.1", port);
+        SocketServer server(port);
         server.start();
         return OK;
       } else {
