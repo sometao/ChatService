@@ -4,8 +4,7 @@
 #include <list>
 #include <mutex>
 #include <sstream>
-
-#include "ChatClient.h"
+#include "SocketClient.h"
 #include "EventProcessor.h"
 #include "constant.h"
 
@@ -19,6 +18,8 @@ using std::string;
 using std::stringstream;
 using std::unique_ptr;
 
+enum class ConnectRsp { ConnectSuccess, ConnectError, AuthFailure };
+
 enum class UserState { WaitingUsername, WaitingPasswd, Connecting, Connected };
 
 class UserAgent : public EventProcessor {
@@ -27,17 +28,20 @@ class UserAgent : public EventProcessor {
   UserAgent operator=(const UserAgent&) = delete;
 
   UserState currState{UserState::WaitingUsername};
-  unique_ptr<ChatClient> chatClient{nullptr};
+  unique_ptr<SocketClient> socketClient{};
 
-  // list<string> eventList{};
-  // condition_variable eventCv{};
-  // mutex eventMutex{};
-  // void eventProcessor();
 
   void inputHandlerFunc();
 
   int setupConnection(string serverIp, int serverPort, string username,
                       string passwd);
+
+  //int sendMsg(const string& msg);
+
+  int readSocketData(const SOCKET s, char* const buff,
+    const int buffSize);
+
+  ConnectRsp connect(string ip, int port, string loginMsg);
 
  protected:
   void processEvent(shared_ptr<Event> evn) override final;

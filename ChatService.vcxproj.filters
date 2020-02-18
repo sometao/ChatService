@@ -27,9 +27,6 @@
     <ClInclude Include="old\resource.h">
       <Filter>Source Files\old</Filter>
     </ClInclude>
-    <ClInclude Include="src\ChatClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SocketClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -40,9 +37,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\UserAgent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\chatProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\constant.h">
@@ -70,9 +64,6 @@
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ChatClient.cpp">
-      <Filter>Source Files\client</Filter>
     </ClCompile>
     <ClCompile Include="src\SocketClient.cpp">
       <Filter>Source Files\client</Filter>

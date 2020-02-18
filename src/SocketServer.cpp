@@ -17,8 +17,6 @@ SocketServer::SocketServer(int _port) : port(_port) {}
 void SocketServer::selecting() {
   cout << "Start select." << endl;
 
-  // vector<SOCKET> g_clients{};
-
   char buff[BUFFER_SIZE] = {};
 
   while (true) {
@@ -33,10 +31,6 @@ void SocketServer::selecting() {
     FD_SET(serverSocket, &fdRead);
     FD_SET(serverSocket, &fdWrite);
     FD_SET(serverSocket, &fdExcept);
-
-    // for (size_t i = 0; i < g_clients.size(); i++) {
-    //  FD_SET(g_clients[i], &fdRead);
-    //}
 
     for (auto gClient : clientsWithUserName) {
       FD_SET(static_cast<SOCKET>(gClient.first), &fdRead);
@@ -78,11 +72,11 @@ void SocketServer::selecting() {
         kick(clientId);
       } else {
         cout << "Receive msg from client socket[" << clientId << "] " << endl;
-        string evnStr{buff};
+        string eventStr{buff};
 
-        switch (evnStr[0]) {
+        switch (eventStr[0]) {
           case '0': {
-            auto event = EventProcessor::LoginEvent::create(evnStr);
+            auto event = EventProcessor::LoginEvent::create(eventStr);
             auto success = loginAuth(clientId, event->username, event->passwd);
             if (!success) {
               cout << "WARNING: clientId[" << clientId
@@ -92,22 +86,27 @@ void SocketServer::selecting() {
             }
           } break;
           case '1': {
-            auto event = EventProcessor::ChatMsgEvent::create(evnStr);
+            auto event = EventProcessor::ChatMsgEvent::create(eventStr);
             auto username = getUsernameByClientId(clientId);
             if (username == "") {
               cout << "EEROR: unlogin clientId[" << clientId << "] msg: ["
-                   << evnStr << "]" << endl;
+                   << eventStr << "]" << endl;
               kick(clientId);
             } else {
-              cout << "debug: got clientId[" << clientId << "] msg: [" << evnStr
+              cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr
                    << "]" << endl;
+
+              //for debug, echo eventStr.
+              sendSocketData(clientId, eventStr);
+
+              //TODO send msg to the peer.
             }
           } break;
           case '2': {
-            auto event = EventProcessor::LogoutEvent::create(evnStr);
+            auto event = EventProcessor::LogoutEvent::create(eventStr);
           } break;
           default:
-            cout << "error event: " << evnStr << endl;
+            cout << "error event: " << eventStr << endl;
             break;
         }
       }
@@ -128,6 +127,20 @@ int SocketServer::readSocketData(const SOCKET s, char* const buff,
     cout << "debug: receive data len=[" << rcvLen << "]" << endl;
     return OK;
   }
+}
+
+int SocketServer::sendSocketData(const unsigned int clientId,
+                                 const string& msg) {
+  const char* data = msg.data();
+
+  if (send(clientId, data, msg.size(), 0) == SOCKET_ERROR) {
+    cout << "send msg err: data=" << data << endl;
+    return ERR;
+  }
+
+  cout << "send msg end:" << msg << endl;
+
+  return OK;
 }
 
 int SocketServer::setupConnect() {
@@ -181,7 +194,8 @@ bool SocketServer::kick(unsigned int clientId) {
     if (user.size() > 0) {
       usernameToSocketIdMap.erase(user);
     }
-    cout << "kick clientId[" << clientId << "] username[" << user << "]." << endl;
+    cout << "kick clientId[" << clientId << "] username[" << user << "]."
+         << endl;
     clientsWithUserName.erase(clientId);
     closesocket(clientId);
     return true;
@@ -211,39 +225,19 @@ bool SocketServer::loginAuth(unsigned int clientId, string user,
                              string passwd) {
   auto it = userPasswdMap.find(user);
   if (it == userPasswdMap.end()) {
-    cout << "clientId[" << clientId << "] loginAuth failed. not find username=" << user << endl;
+    cout << "clientId[" << clientId
+         << "] loginAuth failed. not find username=" << user << endl;
     return false;
   } else if (it->second == passwd) {
-    cout << "clientId["<< clientId << "] loginAuth success. username=" << user << endl;
+    cout << "clientId[" << clientId << "] loginAuth success. username=" << user
+         << endl;
     clientsWithUserName[clientId] = user;
     usernameToSocketIdMap[user] = clientId;
+    sendSocketData(clientId, "OK");
     return true;
   } else {
-    cout << "clientId[" << clientId << "] loginAuth failed. passwd error for username=" << user << endl;
+    cout << "clientId[" << clientId
+         << "] loginAuth failed. passwd error for username=" << user << endl;
     return false;
   }
 }
-
-// void SocketServer::processEvent(shared_ptr<Event> evn) {
-//  switch (evn->eventType) {
-//    case EventType::ChatMsg: {
-//      auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
-//      // cout << "for debug process event [ChatMsgEvent]:" <<
-//      // event->getEventInfo() << endl;
-//    } break;
-//    case EventType::Login: {
-//      auto event = std::static_pointer_cast<LoginEvent>(evn);
-//      // cout << "for debug process event [LoginEvent]:" <<
-//      // event->getEventInfo() << endl;
-//    } break;
-//    case EventType::Logout: {
-//      auto event = std::static_pointer_cast<LogoutEvent>(evn);
-//      // cout << "for debug process event [LogoutEvent]:" <<
-//      // event->getEventInfo() << endl;
-//    } break;
-//    default:
-//      cout << "got event:" << evn->getEventInfo() << ". server skip it."
-//           << endl;
-//      break;
-//  }
-//}

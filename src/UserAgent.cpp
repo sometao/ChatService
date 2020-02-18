@@ -12,32 +12,6 @@ using std::string;
 using std::thread;
 using std::unique_lock;
 
-// void UserAgent::eventProcessor()
-//{
-//	using namespace std::chrono_literals;
-//
-//	decltype(eventList) targetList{};
-//	cout << "Event Processor Created." << endl;
-//	unique_lock<std::mutex> lk{ eventMutex, std::defer_lock };
-//
-//	while (true) {
-//		if (!targetList.empty()) {
-//			string target = targetList.front();
-//			targetList.pop_front();
-//			cout << "process event:[" << target << "]" << endl;
-//			chatClient->sendChat(0, target);
-//		} else {
-//			lk.lock();
-//			if (eventCv.wait_for(lk, 5000ms, [&]{return
-//!eventList.empty();})) { 				targetList.swap(eventList); 			} else {
-//				//check stauts every 5 seconds.
-//			};
-//			lk.unlock();
-//			eventCv.notify_all();
-//		}
-//	}
-//}
-
 void UserAgent::inputHandlerFunc() {
   stringstream ss{};
   const size_t inputBuffSize = 2048;
@@ -56,11 +30,9 @@ void UserAgent::inputHandlerFunc() {
 
 int UserAgent::setupConnection(string serverIp, int serverPort,
                                const string username, const string passwd) {
-  chatClient.reset(new ChatClient());
-
   LoginEvent loginEvent{username, passwd};
 
-  auto rsp = chatClient->connect(serverIp, serverPort, loginEvent.toMsg());
+  auto rsp = connect(serverIp, serverPort, loginEvent.toMsg());
 
   int ret = ERR;
   switch (rsp) {
@@ -81,13 +53,43 @@ int UserAgent::setupConnection(string serverIp, int serverPort,
   return ret;
 }
 
+// int UserAgent::sendMsg(const string& msg) {
+//  socketClient->socketSend(msg);
+//  return 0;
+//}
+
+ConnectRsp UserAgent::connect(string ip, int port, string loginMsg) {
+  socketClient.reset(new SocketClient());
+  if (ERR == socketClient->connectServer(ip, port)) {
+    return ConnectRsp::ConnectError;
+  }
+
+  socketClient->socketSend(loginMsg);
+
+  int len{};
+  string receivedMsg{};
+
+  cout << "Waiting login response." << endl;
+  std::tie(len, receivedMsg) = socketClient->socketReceive();
+  cout << "login response: len=" << len << ", msg:" << receivedMsg << endl;
+  
+
+  if (len < 0) {
+    return ConnectRsp::ConnectError;
+  } else if (receivedMsg != "OK") {
+    return ConnectRsp::AuthFailure;
+  } else {
+    return ConnectRsp::ConnectSuccess;
+  }
+}
+
 void UserAgent::processEvent(shared_ptr<Event> evn) {
   switch (evn->eventType) {
     case (EventType::ChatMsg): {
       auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
       cout << "process event [ChatMsgEvent]:" << event->getEventInfo() << endl;
       const string& msg = event->toMsg();
-      chatClient->sendMsg(msg);
+      socketClient->socketSend(msg);
     } break;
     case (EventType::Login): {
       auto event = std::static_pointer_cast<LoginEvent>(evn);
@@ -134,6 +136,7 @@ void UserAgent::start() {
       case UserState::Connecting:
         if (OK == setupConnection(SERVER_IP, SERVER_PORT, username, passwd)) {
           cout << "connect setup success." << endl;
+          socketClient->startSelecting();
           currState = UserState::Connected;
         } else {
           cout << "connect error." << endl;
