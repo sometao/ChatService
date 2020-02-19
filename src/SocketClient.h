@@ -1,4 +1,5 @@
 #pragma once
+#include "EventProcessor.h"
 #include <winsock2.h>
 
 #include <tuple>
@@ -13,8 +14,7 @@ class SocketClient {
   SC_STATE state = SC_STATE::Disconnect;
   SOCKET clientSocket{INVALID_SOCKET};
   bool isSelecting = false;
-
-  void selecting();
+  void selecting(EventProcessor& processor);
 
 
  public:
@@ -25,7 +25,7 @@ class SocketClient {
 
   std::tuple<int, string> socketReceive();
 
-  int startSelecting();
+  int startSelecting(EventProcessor& processor);
 
   int close();
 };

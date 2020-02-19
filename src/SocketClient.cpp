@@ -5,7 +5,6 @@
 
 #include <cassert>
 
-#include "EventProcessor.h"
 #pragma comment(lib, "ws2_32.lib")
 
 using std::cout;
@@ -64,24 +63,24 @@ std::tuple<int, string> SocketClient::socketReceive() {
          << endl;
     return {rcvLen, ""};
   } else {
-    cout << "debug: receive data len=[" << rcvLen << "]" << endl;
+    //cout << "debug: receive data len=[" << rcvLen << "]" << endl;
     string data{buff};
     return {rcvLen, data};
   }
 }
 
-int SocketClient::startSelecting(){
+int SocketClient::startSelecting(EventProcessor& processor){
   if (isSelecting) {
     return ERR;
   } else {
-    thread t{std::mem_fn(&SocketClient::selecting), std::ref(*this) };
+    thread t{std::mem_fn(&SocketClient::selecting), std::ref(*this), std::ref(processor) };
     t.detach();
     isSelecting = true;
     return OK;
   }
 }
 
-void SocketClient::selecting() {
+void SocketClient::selecting(EventProcessor& processor) {
   assert(clientSocket != INVALID_SOCKET);
 
   cout << "Start select." << endl;
@@ -111,14 +110,15 @@ void SocketClient::selecting() {
       string eventStr;
       std::tie(len, eventStr) = socketReceive();
       if (len < 0) {
-        cout << "WARNING: socket disconneted." << endl;
+        cout << "ERROR: socket disconneted." << endl;
+        break;
       } else if (len == 0) {
         // do nothing.
       } else {
         switch (eventStr[0]) {
           case '1': {
             auto event = EventProcessor::ChatMsgEvent::create(eventStr);
-            cout << "debug: ChatMsgEvent from server. msg: [" << eventStr << "]" << endl;
+            processor.push(event);
           } break;
           default:
             cout << "error event: " << eventStr << endl;

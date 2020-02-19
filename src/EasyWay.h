@@ -47,6 +47,14 @@ class EasyWay {
     auto func = [] { return dis(gen); };
     return func;
   }
+
+  static void trim(string& s) {
+    if (s.empty()) {
+      return;
+    }
+    s.erase(0, s.find_first_not_of(" "));
+    s.erase(s.find_last_not_of(" ") + 1);
+  }
 };
 
 namespace {

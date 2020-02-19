@@ -1,5 +1,5 @@
 #include "UserAgent.h"
-
+#include "EasyWay.h"
 #include <chrono>
 #include <functional>
 #include <thread>
@@ -17,22 +17,38 @@ void UserAgent::inputHandlerFunc() {
   const size_t inputBuffSize = 2048;
   char inputBuff[inputBuffSize] = {};
 
-  string peer{"X"};
-
+  string toUser{""};
+  cout << "$>";
   while (true) {
     memset(inputBuff, 0, inputBuffSize);
-    cout << "$>:";
     cin.getline(inputBuff, inputBuffSize);
-    shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(peer, inputBuff);
-    push(event);
+    string line{inputBuff};
+
+    EasyWay::trim(line);
+    
+    if (line.size() == 0) {
+    //skip empty.
+    } else if (line[0] == ':') {
+      toUser = line.substr(1);
+      cout << "set toUser [" << toUser << "]" << endl;
+    } else if (toUser == "") {
+      cout << "please set toUser first."<< "\n$>" << endl;
+    } else {
+      shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(toUser, currentUser, inputBuff);
+      push(event);
+    }
+    std::this_thread::sleep_for(chrono::microseconds(100));
+    cout << "$>";
+
   }
 }
 
 int UserAgent::setupConnection(string serverIp, int serverPort,
                                const string username, const string passwd) {
-  LoginEvent loginEvent{username, passwd};
 
-  auto rsp = connect(serverIp, serverPort, loginEvent.toMsg());
+  auto loginEvent = std::make_shared<LoginEvent>(username, passwd);
+
+  auto rsp = connectServer(serverIp, serverPort, loginEvent);
 
   int ret = ERR;
   switch (rsp) {
@@ -58,13 +74,13 @@ int UserAgent::setupConnection(string serverIp, int serverPort,
 //  return 0;
 //}
 
-ConnectRsp UserAgent::connect(string ip, int port, string loginMsg) {
+ConnectRsp UserAgent::connectServer(string ip, int port, shared_ptr<LoginEvent> loginEvent) {
   socketClient.reset(new SocketClient());
   if (ERR == socketClient->connectServer(ip, port)) {
     return ConnectRsp::ConnectError;
   }
 
-  socketClient->socketSend(loginMsg);
+  socketClient->socketSend(loginEvent->toMsg());
 
   int len{};
   string receivedMsg{};
@@ -72,13 +88,13 @@ ConnectRsp UserAgent::connect(string ip, int port, string loginMsg) {
   cout << "Waiting login response." << endl;
   std::tie(len, receivedMsg) = socketClient->socketReceive();
   cout << "login response: len=" << len << ", msg:" << receivedMsg << endl;
-  
 
   if (len < 0) {
     return ConnectRsp::ConnectError;
   } else if (receivedMsg != "OK") {
     return ConnectRsp::AuthFailure;
   } else {
+    currentUser = loginEvent->username;
     return ConnectRsp::ConnectSuccess;
   }
 }
@@ -87,9 +103,18 @@ void UserAgent::processEvent(shared_ptr<Event> evn) {
   switch (evn->eventType) {
     case (EventType::ChatMsg): {
       auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
-      cout << "process event [ChatMsgEvent]:" << event->getEventInfo() << endl;
-      const string& msg = event->toMsg();
-      socketClient->socketSend(msg);
+      //cout << "process event [ChatMsgEvent]:" << event->getEventInfo() << endl;
+      
+      if (event->toUser == currentUser) {
+        cout << event->fromUser << ": " << event->words << endl;
+        cout << "$>";
+      } else if (event->fromUser == currentUser) {
+        const string& msg = event->toMsg();
+        socketClient->socketSend(msg);
+      } else {
+        cout << "ERROR: unknown msg:" << evn << endl;
+        cout << "$>";
+      }
     } break;
     case (EventType::Login): {
       auto event = std::static_pointer_cast<LoginEvent>(evn);
@@ -102,6 +127,7 @@ void UserAgent::processEvent(shared_ptr<Event> evn) {
     default:
       break;
   }
+
 }
 
 #define enumToStr(val) Setstr(#val)
@@ -122,13 +148,13 @@ void UserAgent::start() {
 
     switch (currState) {
       case UserState::WaitingUsername:
-        cout << "请输入用户名:" << endl;
+        cout << "请输入用户名:";
         cin.getline(inputBuff, inputBuffSize);
         username = inputBuff;
         currState = UserState::WaitingPasswd;
         break;
       case UserState::WaitingPasswd:
-        cout << "请输入密码:" << endl;
+        cout << "请输入密码:";
         cin.getline(inputBuff, inputBuffSize);
         passwd = inputBuff;
         currState = UserState::Connecting;
@@ -136,7 +162,7 @@ void UserAgent::start() {
       case UserState::Connecting:
         if (OK == setupConnection(SERVER_IP, SERVER_PORT, username, passwd)) {
           cout << "connect setup success." << endl;
-          socketClient->startSelecting();
+          socketClient->startSelecting(*this);
           currState = UserState::Connected;
         } else {
           cout << "connect error." << endl;

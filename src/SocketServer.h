@@ -26,6 +26,8 @@ class SocketServer {
 
   int sendSocketData(const unsigned int clientId, const string& msg);
 
+  int transferChatMsg(shared_ptr<EventProcessor::ChatMsgEvent> chatMsg);
+
   int setupConnect();
 
  public:

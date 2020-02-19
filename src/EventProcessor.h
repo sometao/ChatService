@@ -92,11 +92,15 @@ class EventProcessor {
   };
 
   struct ChatMsgEvent final : Event {
-    ChatMsgEvent(const string& peer, const string& words_)
-        : Event{EventType::ChatMsg}, peerUsername(peer), words(words_){};
+    ChatMsgEvent(const string& toUser_, const string& fromUser_,
+                 const string& words_)
+        : Event{EventType::ChatMsg},
+          toUser(toUser_),
+          fromUser(fromUser_),
+          words(words_){};
 
     static shared_ptr<ChatMsgEvent> create(const string& data) {
-      cout << "for debug: ChatMsgEvent create input=[" << data << "]" << endl;
+      //cout << "for debug: ChatMsgEvent create input=[" << data << "]" << endl;
 
       shared_ptr<ChatMsgEvent> ptr{};
       bool parseFailed = false;
@@ -109,10 +113,12 @@ class EventProcessor {
           ss.getline(buff, len, '|');
           // skip eventType id;
           ss.getline(buff, len, '|');
-          string peerUsername{buff};
+          string toUser{buff};
+          ss.getline(buff, len, '|');
+          string fromUser{buff};
           ss.getline(buff, len, '|');
           string words{buff};
-          ptr.reset(new ChatMsgEvent(peerUsername, words));
+          ptr.reset(new ChatMsgEvent(toUser, fromUser, words));
         } catch (...) {
           parseFailed = true;
         }
@@ -131,11 +137,14 @@ class EventProcessor {
       }
     }
 
-    const string peerUsername;
+    const string toUser;
+    const string fromUser;
     const string words;
     string getEventInfo() override {
-      string s{"[ChatMsg, peerUsername="};
-      s += peerUsername;
+      string s{"[ChatMsg, toUser="};
+      s += toUser;
+      s += ", fromUser=";
+      s += fromUser;
       s += ", words=";
       s += words;
       s += "]";
@@ -145,7 +154,8 @@ class EventProcessor {
     string toMsg() override {
       stringstream ss{};
       ss << static_cast<int>(eventType) << "|";
-      ss << peerUsername << "|";
+      ss << toUser << "|";
+      ss << fromUser << "|";
       ss << words << "|";
       return ss.str();
     }

@@ -93,13 +93,14 @@ void SocketServer::selecting() {
                    << eventStr << "]" << endl;
               kick(clientId);
             } else {
-              cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr
-                   << "]" << endl;
+              cout << "debug: got clientId[" << clientId << "] msg: ["
+                   << eventStr << "]" << endl;
 
-              //for debug, echo eventStr.
-              sendSocketData(clientId, eventStr);
-
-              //TODO send msg to the peer.
+              if (transferChatMsg(event) == ERR) {
+                auto msg = std::make_shared<EventProcessor::ChatMsgEvent>(
+                    username, "SERVER", "your msg delive failed.");
+                    sendSocketData(clientId, msg->toMsg());
+              }
             }
           } break;
           case '2': {
@@ -141,6 +142,21 @@ int SocketServer::sendSocketData(const unsigned int clientId,
   cout << "send msg end:" << msg << endl;
 
   return OK;
+}
+
+int SocketServer::transferChatMsg(
+    shared_ptr<EventProcessor::ChatMsgEvent> chatMsg) {
+  const string& username = chatMsg->toUser;
+  auto it = usernameToSocketIdMap.find(username);
+  if (it != usernameToSocketIdMap.end()) {
+    auto clientId = it->second;
+    sendSocketData(clientId, chatMsg->toMsg());
+    return OK;
+  } else {
+    cout << "Can not send msg[" << chatMsg->toMsg() << "] to peer["
+         << chatMsg->toUser << "]" << endl;
+    return ERR;
+  }
 }
 
 int SocketServer::setupConnect() {

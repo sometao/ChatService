@@ -29,6 +29,7 @@ class UserAgent : public EventProcessor {
 
   UserState currState{UserState::WaitingUsername};
   unique_ptr<SocketClient> socketClient{};
+  string currentUser{""};
 
 
   void inputHandlerFunc();
@@ -41,7 +42,7 @@ class UserAgent : public EventProcessor {
   int readSocketData(const SOCKET s, char* const buff,
     const int buffSize);
 
-  ConnectRsp connect(string ip, int port, string loginMsg);
+  ConnectRsp connectServer(string ip, int port, shared_ptr<LoginEvent> loginMsg);
 
  protected:
   void processEvent(shared_ptr<Event> evn) override final;
