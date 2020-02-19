@@ -59,21 +59,22 @@ std::tuple<int, string> SocketClient::socketReceive() {
   char buff[BUFFER_SIZE]{};
   int rcvLen = recv(clientSocket, buff, BUFFER_SIZE - 1, 0);
   if (rcvLen < 0) {
-    cout << "socket [" << static_cast<int>(clientSocket) << " disconnected."
+    cout << "socket [" << static_cast<int>(clientSocket) << "] disconnected."
          << endl;
     return {rcvLen, ""};
   } else {
-    //cout << "debug: receive data len=[" << rcvLen << "]" << endl;
+    // cout << "debug: receive data len=[" << rcvLen << "]" << endl;
     string data{buff};
     return {rcvLen, data};
   }
 }
 
-int SocketClient::startSelecting(EventProcessor& processor){
+int SocketClient::startSelecting(EventProcessor& processor) {
   if (isSelecting) {
     return ERR;
   } else {
-    thread t{std::mem_fn(&SocketClient::selecting), std::ref(*this), std::ref(processor) };
+    thread t{std::mem_fn(&SocketClient::selecting), std::ref(*this),
+             std::ref(processor)};
     t.detach();
     isSelecting = true;
     return OK;
@@ -127,5 +128,8 @@ void SocketClient::selecting(EventProcessor& processor) {
       }
     }
   }
+  cout << "SocketClient selecting done." << endl;
+  isSelecting = false;
+  auto logout = std::make_shared<EventProcessor::LogoutEvent>();
+  processor.push(logout);
 }
-

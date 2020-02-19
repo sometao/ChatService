@@ -99,7 +99,7 @@ void SocketServer::selecting() {
               if (transferChatMsg(event) == ERR) {
                 auto msg = std::make_shared<EventProcessor::ChatMsgEvent>(
                     username, "SERVER", "your msg delive failed.");
-                    sendSocketData(clientId, msg->toMsg());
+                sendSocketData(clientId, msg->toMsg());
               }
             }
           } break;
@@ -247,6 +247,13 @@ bool SocketServer::loginAuth(unsigned int clientId, string user,
   } else if (it->second == passwd) {
     cout << "clientId[" << clientId << "] loginAuth success. username=" << user
          << endl;
+    auto it = usernameToSocketIdMap.find(user);
+    if (it != usernameToSocketIdMap.end()) {
+      auto oldClientId = it->second;
+      cout << "already login [" << user << "]. Kick old ClientId["
+           << oldClientId << "]" << endl;
+      kick(oldClientId);
+    }
     clientsWithUserName[clientId] = user;
     usernameToSocketIdMap[user] = clientId;
     sendSocketData(clientId, "OK");
