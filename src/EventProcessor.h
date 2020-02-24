@@ -20,6 +20,7 @@ using std::string;
 using std::stringstream;
 using std::thread;
 
+
 class EventProcessor {
  public:
   enum class EventType { Login, ChatMsg, Logout };

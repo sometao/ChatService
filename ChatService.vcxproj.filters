@@ -91,5 +91,6 @@
     <None Include="resources\md-styles.css">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include=".clang-format" />
   </ItemGroup>
 </Project>

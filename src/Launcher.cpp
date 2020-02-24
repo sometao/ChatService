@@ -2,8 +2,6 @@
 #include "UserAgent.h"
 #include "constant.h"
 
-
-
 int main(int argc, char* argv[]) {
   using std::cout;
   using std::endl;
@@ -14,8 +12,7 @@ int main(int argc, char* argv[]) {
     if (argc < 2) {
       cout << "input error:" << endl;
       cout << "if you want to start server: server SERVER_PORT." << endl;
-      cout << "if you want to start client: client SERVER_HOST SERVER_PORT."
-           << endl;
+      cout << "if you want to start client: client SERVER_HOST SERVER_PORT." << endl;
     } else {
       cout << "error cmd=[" << argv[1] << "]. ";
       cout << "Only [client] or [server] support." << endl;
@@ -36,8 +33,7 @@ int main(int argc, char* argv[]) {
         return OK;
       } else {
         cout << "input error. " << endl;
-        cout << "you should input like this: client SERVER_HOST SERVER_PORT"
-             << endl;
+        cout << "you should input like this: client SERVER_HOST SERVER_PORT" << endl;
         return ERR;
       }
     } else if (strcmp(argv[1], "server") == 0) {
@@ -55,7 +51,6 @@ int main(int argc, char* argv[]) {
     } else {
       return inputError();
     }
-
   } else {
     return inputError();
   }

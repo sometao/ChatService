@@ -19,11 +19,9 @@ void UserAgent::inputHandlerFunc() {
   const size_t inputBuffSize = 2048;
   char inputBuff[inputBuffSize] = {};
 
-
   string toUser{""};
   cout << "$>";
   while (true) {
-
     if (currState != UserState::Connected) {
       cout << "WARNING: inputHandlerFunc quit." << endl;
       return;
@@ -44,8 +42,7 @@ void UserAgent::inputHandlerFunc() {
       cout << "please set toUser first."
            << "\n$>" << endl;
     } else {
-      shared_ptr<Event> event =
-          std::make_shared<ChatMsgEvent>(toUser, currentUser, inputBuff);
+      shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(toUser, currentUser, inputBuff);
       push(event);
     }
     std::this_thread::sleep_for(chrono::microseconds(100));
@@ -53,11 +50,16 @@ void UserAgent::inputHandlerFunc() {
   }
 }
 
-int UserAgent::setupConnection(string serverIp, int serverPort,
-                               const string username, const string passwd) {
+int UserAgent::setupConnection(string serverIp, int serverPort, const string username,
+                               const string passwd) {
   auto loginEvent = std::make_shared<LoginEvent>(username, passwd);
 
   auto rsp = connectServer(serverIp, serverPort, loginEvent);
+  if (true) {
+    cout << endl;
+  } else {
+    cout << endl;
+  }
 
   int ret = ERR;
   switch (rsp) {
@@ -83,8 +85,7 @@ int UserAgent::setupConnection(string serverIp, int serverPort,
 //  return 0;
 //}
 
-ConnectRsp UserAgent::connectServer(string ip, int port,
-                                    shared_ptr<LoginEvent> loginEvent) {
+ConnectRsp UserAgent::connectServer(string ip, int port, shared_ptr<LoginEvent> loginEvent) {
   socketClient.reset(new SocketClient());
   if (ERR == socketClient->connectServer(ip, port)) {
     return ConnectRsp::ConnectError;
@@ -113,8 +114,8 @@ void UserAgent::processEvent(shared_ptr<Event> evn) {
   switch (evn->eventType) {
     case (EventType::ChatMsg): {
       auto event = std::static_pointer_cast<ChatMsgEvent>(evn);
-      // cout << "process event [ChatMsgEvent]:" << event->getEventInfo() <<
-      // endl;
+      // cout << "process event [ChatMsgEvent]:"
+      // << event->getEventInfo() << endl;
 
       if (event->toUser == currentUser) {
         cout << event->fromUser << ": " << event->words << endl;
@@ -140,8 +141,6 @@ void UserAgent::processEvent(shared_ptr<Event> evn) {
       break;
   }
 }
-
-#define enumToStr(val) Setstr(#val)
 
 void UserAgent::start() {
   using namespace std::chrono_literals;

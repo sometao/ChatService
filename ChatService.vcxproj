@@ -40,6 +40,7 @@
     <ClCompile Include="src\UserAgent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".clang-format" />
     <None Include="resources\md-styles.css" />
     <None Include="resources\mdDemo.md" />
     <None Include="resources\readme.md" />

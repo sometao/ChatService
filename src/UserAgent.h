@@ -31,16 +31,13 @@ class UserAgent : public EventProcessor {
   unique_ptr<SocketClient> socketClient{};
   string currentUser{""};
 
-
   void inputHandlerFunc();
 
-  int setupConnection(string serverIp, int serverPort, string username,
-                      string passwd);
+  int setupConnection(string serverIp, int serverPort, string username, string passwd);
 
-  //int sendMsg(const string& msg);
+  // int sendMsg(const string& msg);
 
-  int readSocketData(const SOCKET s, char* const buff,
-    const int buffSize);
+  int readSocketData(const SOCKET s, char* const buff, const int buffSize);
 
   ConnectRsp connectServer(string ip, int port, shared_ptr<LoginEvent> loginMsg);
 

@@ -79,9 +79,8 @@ void SocketServer::selecting() {
             auto event = EventProcessor::LoginEvent::create(eventStr);
             auto success = loginAuth(clientId, event->username, event->passwd);
             if (!success) {
-              cout << "WARNING: clientId[" << clientId
-                   << "] passwd error for user[" << event->username << "]"
-                   << endl;
+              cout << "WARNING: clientId[" << clientId << "] passwd error for user["
+                   << event->username << "]" << endl;
               kick(clientId);
             }
           } break;
@@ -89,12 +88,11 @@ void SocketServer::selecting() {
             auto event = EventProcessor::ChatMsgEvent::create(eventStr);
             auto username = getUsernameByClientId(clientId);
             if (username == "") {
-              cout << "EEROR: unlogin clientId[" << clientId << "] msg: ["
-                   << eventStr << "]" << endl;
+              cout << "EEROR: unlogin clientId[" << clientId << "] msg: [" << eventStr << "]"
+                   << endl;
               kick(clientId);
             } else {
-              cout << "debug: got clientId[" << clientId << "] msg: ["
-                   << eventStr << "]" << endl;
+              cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr << "]" << endl;
 
               if (transferChatMsg(event) == ERR) {
                 auto msg = std::make_shared<EventProcessor::ChatMsgEvent>(
@@ -117,8 +115,7 @@ void SocketServer::selecting() {
   cout << "End select." << endl;
 }
 
-int SocketServer::readSocketData(const SOCKET s, char* const buff,
-                                 const int buffSize) {
+int SocketServer::readSocketData(const SOCKET s, char* const buff, const int buffSize) {
   memset(buff, 0, buffSize);
   int rcvLen = recv(s, buff, buffSize - 1, 0);
   if (rcvLen < 0) {
@@ -130,8 +127,7 @@ int SocketServer::readSocketData(const SOCKET s, char* const buff,
   }
 }
 
-int SocketServer::sendSocketData(const unsigned int clientId,
-                                 const string& msg) {
+int SocketServer::sendSocketData(const unsigned int clientId, const string& msg) {
   const char* data = msg.data();
 
   if (send(clientId, data, msg.size(), 0) == SOCKET_ERROR) {
@@ -144,8 +140,7 @@ int SocketServer::sendSocketData(const unsigned int clientId,
   return OK;
 }
 
-int SocketServer::transferChatMsg(
-    shared_ptr<EventProcessor::ChatMsgEvent> chatMsg) {
+int SocketServer::transferChatMsg(shared_ptr<EventProcessor::ChatMsgEvent> chatMsg) {
   const string& username = chatMsg->toUser;
   auto it = usernameToSocketIdMap.find(username);
   if (it != usernameToSocketIdMap.end()) {
@@ -153,8 +148,8 @@ int SocketServer::transferChatMsg(
     sendSocketData(clientId, chatMsg->toMsg());
     return OK;
   } else {
-    cout << "Can not send msg[" << chatMsg->toMsg() << "] to peer["
-         << chatMsg->toUser << "]" << endl;
+    cout << "Can not send msg[" << chatMsg->toMsg() << "] to peer[" << chatMsg->toUser << "]"
+         << endl;
     return ERR;
   }
 }
@@ -174,8 +169,7 @@ int SocketServer::setupConnect() {
   }
 
   serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) ==
-      SOCKET_ERROR) {
+  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR) {
     closesocket(serverSocket);
     WSACleanup();
     cout << "bind error." << endl;
@@ -210,8 +204,7 @@ bool SocketServer::kick(unsigned int clientId) {
     if (user.size() > 0) {
       usernameToSocketIdMap.erase(user);
     }
-    cout << "kick clientId[" << clientId << "] username[" << user << "]."
-         << endl;
+    cout << "kick clientId[" << clientId << "] username[" << user << "]." << endl;
     clientsWithUserName.erase(clientId);
     closesocket(clientId);
     return true;
@@ -233,25 +226,19 @@ int SocketServer::start() {
   }
 }
 
-void SocketServer::clientConnet(unsigned int clientId) {
-  clientsWithUserName[clientId] = "";
-}
+void SocketServer::clientConnet(unsigned int clientId) { clientsWithUserName[clientId] = ""; }
 
-bool SocketServer::loginAuth(unsigned int clientId, string user,
-                             string passwd) {
+bool SocketServer::loginAuth(unsigned int clientId, string user, string passwd) {
   auto it = userPasswdMap.find(user);
   if (it == userPasswdMap.end()) {
-    cout << "clientId[" << clientId
-         << "] loginAuth failed. not find username=" << user << endl;
+    cout << "clientId[" << clientId << "] loginAuth failed. not find username=" << user << endl;
     return false;
   } else if (it->second == passwd) {
-    cout << "clientId[" << clientId << "] loginAuth success. username=" << user
-         << endl;
+    cout << "clientId[" << clientId << "] loginAuth success. username=" << user << endl;
     auto it = usernameToSocketIdMap.find(user);
     if (it != usernameToSocketIdMap.end()) {
       auto oldClientId = it->second;
-      cout << "already login [" << user << "]. Kick old ClientId["
-           << oldClientId << "]" << endl;
+      cout << "already login [" << user << "]. Kick old ClientId[" << oldClientId << "]" << endl;
       kick(oldClientId);
     }
     clientsWithUserName[clientId] = user;
@@ -259,8 +246,8 @@ bool SocketServer::loginAuth(unsigned int clientId, string user,
     sendSocketData(clientId, "OK");
     return true;
   } else {
-    cout << "clientId[" << clientId
-         << "] loginAuth failed. passwd error for username=" << user << endl;
+    cout << "clientId[" << clientId << "] loginAuth failed. passwd error for username=" << user
+         << endl;
     return false;
   }
 }
