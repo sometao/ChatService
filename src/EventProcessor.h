@@ -253,7 +253,8 @@ class EventProcessor {
 
  public:
   EventProcessor() {
-    thread t(std::mem_fn(&EventProcessor::startHandler), std::ref(*this));
+    //thread t(std::mem_fn(&EventProcessor::startHandler), std::ref(*this));
+    thread t(&EventProcessor::startHandler, this);
     t.detach();
   };
 

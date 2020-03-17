@@ -92,5 +92,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include=".clang-format" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

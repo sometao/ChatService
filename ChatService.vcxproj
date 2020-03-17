@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
+    <None Include="README.md" />
     <None Include="resources\md-styles.css" />
     <None Include="resources\mdDemo.md" />
     <None Include="resources\readme.md" />

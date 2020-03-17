@@ -39,7 +39,7 @@ void UserAgent::inputHandlerFunc() {
       toUser = line.substr(1);
       cout << "set toUser [" << toUser << "]" << endl;
     } else if (toUser == "") {
-      cout << "please set toUser first."
+      cout << "please set toUser first. e.g input [:tt]"
            << "\n$>" << endl;
     } else {
       shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(toUser, currentUser, inputBuff);
