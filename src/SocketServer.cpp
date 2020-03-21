@@ -2,6 +2,8 @@
 
 #include <map>
 #include <vector>
+#include <cstring>
+
 
 using std::cout;
 using std::endl;
