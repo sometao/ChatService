@@ -1,3 +1,4 @@
+#include "unixbase.h"
 #include "SocketServer.h"
 
 #include <map>

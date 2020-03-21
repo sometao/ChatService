@@ -1,3 +1,5 @@
+#include "unixbase.h"
+
 #include <constant.h>
 
 #include "socketUtil.h"

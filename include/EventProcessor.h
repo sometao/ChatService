@@ -9,11 +9,6 @@
 #include <string>
 #include <thread>
 
-#ifdef _UNIX
-#include <unistd.h>
-#include <cstring>
-#endif
-
 
 using std::condition_variable;
 using std::cout;

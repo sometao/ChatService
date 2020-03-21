@@ -1,3 +1,4 @@
+#include "unixbase.h"
 #include "SocketClient.h"
 #include <cassert>
 

@@ -2,11 +2,6 @@
 #include <iostream>
 #include <string>
 
-#ifdef _UNIX
-#include <unistd.h>
-#include <cstring>
-#endif
-
 #define OK 0
 #define ERR -1
 

@@ -1,9 +1,6 @@
 #pragma once
 
-#ifdef _UNIX
-#include <unistd.h>
-#include <cstring>
-#endif
+
 
 #include <chrono>
 #include <iostream>

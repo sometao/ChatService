@@ -1,3 +1,4 @@
+#include "unixbase.h"
 #include "UserAgent.h"
 
 #include <chrono>
