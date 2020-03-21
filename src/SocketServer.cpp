@@ -63,9 +63,15 @@ void SocketServer::selecting() {
       clientConnet(clientId);
     }
 
+    cout << "1 ------------------------ " << endl;
+
     for (auto gClient : clientsWithUserName) {
       SOCKET clientId = (SOCKET)gClient.first;
+      cout << "2 clientId = " << clientId << endl;
+
       if (FD_ISSET(clientId, &fdRead)) {
+        cout << "3 got msg from [" << clientId << "]" << endl;
+
         if (readSocketData(clientId, buff, BUFFER_SIZE) == ERR) {
           cout << "clientId[" << clientId << "] disconnect." << endl;
           kick(clientId);
@@ -110,6 +116,7 @@ void SocketServer::selecting() {
           }
         }
       }
+
     }
   }
 
