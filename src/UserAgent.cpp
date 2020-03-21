@@ -5,8 +5,6 @@
 #include <functional>
 #include <thread>
 
-#include "EasyWay.h"
-
 using std::cin;
 using std::cout;
 using std::endl;
@@ -14,6 +12,15 @@ using std::mem_fn;
 using std::string;
 using std::thread;
 using std::unique_lock;
+
+static void trim(string& s) {
+  if (s.empty()) {
+    return;
+  }
+  s.erase(0, s.find_first_not_of(" "));
+  s.erase(s.find_last_not_of(" ") + 1);
+}
+
 
 void UserAgent::inputHandlerFunc() {
   stringstream ss{};
@@ -32,7 +39,9 @@ void UserAgent::inputHandlerFunc() {
     cin.getline(inputBuff, inputBuffSize);
     string line{inputBuff};
 
-    EasyWay::trim(line);
+
+
+    trim(line);
 
     if (line.size() == 0) {
       // skip empty.
@@ -46,7 +55,7 @@ void UserAgent::inputHandlerFunc() {
       shared_ptr<Event> event = std::make_shared<ChatMsgEvent>(toUser, currentUser, inputBuff);
       push(event);
     }
-    std::this_thread::sleep_for(chrono::microseconds(100));
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
     cout << "$>";
   }
 }
