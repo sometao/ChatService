@@ -35,9 +35,9 @@ void SocketServer::selecting() {
       FD_SET(static_cast<SOCKET>(gClient.first), &fdRead);
     }
 
-    // timeval timeInterval = { 1, 0 };
+    timeval timeInterval = { 1, 0 };
 
-    int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, nullptr);
+    int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
     // cout << "select once..." << endl;
 
     if (ret < 0) {

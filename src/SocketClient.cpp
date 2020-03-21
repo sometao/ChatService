@@ -45,7 +45,7 @@ int SocketClient::socketSend(const string& msg) {
     return ERR;
   }
 
-  // cout << "send msg end:" << sendBuff << endl;
+  cout << "send msg: " << msg << endl;
 
   return OK;
 }

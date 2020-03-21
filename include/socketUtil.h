@@ -5,6 +5,7 @@
 #include <WS2tcpip.h>
 #else
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #define SOCKET int
 #define INVALID_SOCKET (SOCKET)(~0)
 #define SOCKET_ERROR		   (-1)
