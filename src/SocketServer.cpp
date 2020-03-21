@@ -1,16 +1,15 @@
 #include "SocketServer.h"
 
-#include <WS2tcpip.h>
-#include <winsock2.h>
-
 #include <map>
 #include <vector>
-#pragma comment(lib, "ws2_32.lib")
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+
+extern void cleanSocket(SOCKET s);
+extern void cleanWSA();
 
 SocketServer::SocketServer(int _port) : port(_port) {}
 
@@ -92,7 +91,8 @@ void SocketServer::selecting() {
                    << endl;
               kick(clientId);
             } else {
-              cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr << "]" << endl;
+              cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr << "]"
+                   << endl;
 
               if (transferChatMsg(event) == ERR) {
                 auto msg = std::make_shared<EventProcessor::ChatMsgEvent>(
@@ -155,30 +155,29 @@ int SocketServer::transferChatMsg(shared_ptr<EventProcessor::ChatMsgEvent> chatM
 }
 
 int SocketServer::setupConnect() {
-  WSADATA wsaData = {};
-
   SOCKADDR_IN serverAddr = {0};
 
-  serverAddr.sin_family = AF_INET;
-  serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-  serverAddr.sin_port = htons(port);
-
-  if (WSAStartup(SOCKET_VERSION, &wsaData) != OK) {
+  if (startupWSA() == ERR) {
     cout << "WSAStartup error." << endl;
     return ERR;
   }
 
+  setSocketAddr(&serverAddr, nullptr);
+
+  serverAddr.sin_family = AF_INET;
+  serverAddr.sin_port = htons(port);
+
   serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR) {
-    closesocket(serverSocket);
-    WSACleanup();
+    cleanSocket(serverSocket);
+    cleanWSA();
     cout << "bind error." << endl;
     return ERR;
   }
 
   if (listen(serverSocket, BACKLOG) == SOCKET_ERROR) {
-    closesocket(serverSocket);
-    WSACleanup();
+    cleanSocket(serverSocket);
+    cleanWSA();
     cout << "listen error." << endl;
     return ERR;
   }
@@ -206,7 +205,7 @@ bool SocketServer::kick(unsigned int clientId) {
     }
     cout << "kick clientId[" << clientId << "] username[" << user << "]." << endl;
     clientsWithUserName.erase(clientId);
-    closesocket(clientId);
+    cleanSocket(clientId);
     return true;
   } else {
     return false;
@@ -231,14 +230,16 @@ void SocketServer::clientConnet(unsigned int clientId) { clientsWithUserName[cli
 bool SocketServer::loginAuth(unsigned int clientId, string user, string passwd) {
   auto it = userPasswdMap.find(user);
   if (it == userPasswdMap.end()) {
-    cout << "clientId[" << clientId << "] loginAuth failed. not find username=" << user << endl;
+    cout << "clientId[" << clientId << "] loginAuth failed. not find username=" << user
+         << endl;
     return false;
   } else if (it->second == passwd) {
     cout << "clientId[" << clientId << "] loginAuth success. username=" << user << endl;
     auto it = usernameToSocketIdMap.find(user);
     if (it != usernameToSocketIdMap.end()) {
       auto oldClientId = it->second;
-      cout << "already login [" << user << "]. Kick old ClientId[" << oldClientId << "]" << endl;
+      cout << "already login [" << user << "]. Kick old ClientId[" << oldClientId << "]"
+           << endl;
       kick(oldClientId);
     }
     clientsWithUserName[clientId] = user;

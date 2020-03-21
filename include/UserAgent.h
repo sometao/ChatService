@@ -31,6 +31,9 @@ class UserAgent : public EventProcessor {
   unique_ptr<SocketClient> socketClient{};
   string currentUser{""};
 
+  const string serverIp;
+  const int serverPort;
+
   void inputHandlerFunc();
 
   int setupConnection(string serverIp, int serverPort, string username, string passwd);
@@ -45,6 +48,6 @@ class UserAgent : public EventProcessor {
   void processEvent(shared_ptr<Event> evn) override final;
 
  public:
-  UserAgent(){};
+  UserAgent(const string& ip, const int port) : serverIp(ip), serverPort(port){};
   void start();
 };

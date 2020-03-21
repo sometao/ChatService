@@ -1,10 +1,11 @@
 #pragma once
-#include <winsock2.h>
 
 #include <map>
-
 #include "EventProcessor.h"
 #include "constant.h"
+
+#include "socketUtil.h"
+
 
 using std::string;
 

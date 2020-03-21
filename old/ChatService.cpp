@@ -15,7 +15,7 @@ int main0(int argc, char* argv[]) {
       if (argc == 4) {
         char* host = argv[2];
         int port = stoi(argv[3], 0, 10);
-        cout << "setup socket to [" << host << ":" << port << endl;
+        cout << "setup socket to [" << host << ":" << port << "]" << endl;
         startClient(host, port);
         return OK;
       } else {

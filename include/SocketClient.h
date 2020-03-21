@@ -1,9 +1,10 @@
 #pragma once
+
+#include "socketUtil.h"
+
+
 #include "EventProcessor.h"
-#include <winsock2.h>
-
 #include <tuple>
-
 #include "constant.h"
 
 using std::string;
@@ -18,7 +19,6 @@ class SocketClient {
 
 
  public:
-
   int connectServer(string ip, int port);
 
   int socketSend(const string& msg);

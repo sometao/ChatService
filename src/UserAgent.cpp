@@ -170,7 +170,7 @@ void UserAgent::start() {
         currState = UserState::Connecting;
         break;
       case UserState::Connecting:
-        if (OK == setupConnection(SERVER_IP, SERVER_PORT, username, passwd)) {
+        if (OK == setupConnection(serverIp, serverPort, username, passwd)) {
           cout << "connect setup success." << endl;
           socketClient->startSelecting(*this);
           currState = UserState::Connected;
