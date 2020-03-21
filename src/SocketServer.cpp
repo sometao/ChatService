@@ -52,7 +52,7 @@ void SocketServer::selecting() {
 
     timeval timeInterval = { 1, 0 };
 
-    int ret = select(maxSocket, &fdRead, &fdWrite, &fdExcept, &timeInterval);
+    int ret = select(maxSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
     // cout << "select once..." << endl;
 
     if (ret < 0) {
