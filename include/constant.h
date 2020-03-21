@@ -4,6 +4,7 @@
 
 #ifdef _UNIX
 #include <unistd.h>
+#include <cstring>
 #endif
 
 #define OK 0

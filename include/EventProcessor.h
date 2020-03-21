@@ -11,6 +11,7 @@
 
 #ifdef _UNIX
 #include <unistd.h>
+#include <cstring>
 #endif
 
 

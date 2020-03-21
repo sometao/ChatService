@@ -2,6 +2,7 @@
 
 #ifdef _UNIX
 #include <unistd.h>
+#include <cstring>
 #endif
 
 #include <chrono>
@@ -35,9 +36,9 @@ class EasyWay {
     return rst;
   }
 
-  static auto uniformIntDistribution(int min, int max, int seed = INT_MIN) {
+  static auto uniformIntDistribution(int min, int max, int seed = -999) {
     static std::random_device rd;
-    static std::mt19937 gen{seed == INT_MIN ? rd() : seed};
+    static std::mt19937 gen{seed == -999 ? rd() : seed};
     static std::uniform_int_distribution<> dis(min, max);
     auto func = [] { return dis(gen); };
     return func;
