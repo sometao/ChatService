@@ -77,18 +77,17 @@ void SocketServer::selecting() {
 
       clientConnet(clientId);
       maxSocket = 0;
-      //FD_SET(clientId, &fdRead);
     }
 
-    cout << "0 --------maxSocket = " << maxSocket << endl;
-    cout << "1 --------serverSocket = " << serverSocket << endl;
+    //cout << "0 --------maxSocket = " << maxSocket << endl;
+    //cout << "1 --------serverSocket = " << serverSocket << endl;
 
     for (auto gClient : clientsWithUserName) {
       SOCKET clientId = (SOCKET)gClient.first;
-      cout << "2 clientId = " << clientId << endl;
+      //cout << "2 clientId = " << clientId << endl;
 
       if (FD_ISSET(clientId, &fdRead)) {
-        cout << "3 got msg from [" << clientId << "]" << endl;
+        //cout << "3 got msg from [" << clientId << "]" << endl;
 
         if (readSocketData(clientId, buff, BUFFER_SIZE) == ERR) {
           cout << "clientId[" << clientId << "] disconnect." << endl;
