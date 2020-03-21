@@ -44,7 +44,7 @@ void setSocketAddr(sockaddr_in* addr, const char* ip) {
 #ifdef _WIN32
     (*addr).sin_addr.S_un.S_addr = inet_addr(ip);
 #else
-    (*addr).sin_addr.S_addr = inet_addr(ip);
+    (*addr).sin_addr.s_addr = inet_addr(ip);
 #endif
   }
 }
