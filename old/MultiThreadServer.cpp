@@ -97,7 +97,7 @@ int startMultiThreadServer(int port) {
   }
 
   SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (bind(serverSocket, (SOCKADDR *)&serverAddr, sizeof(SOCKADDR)) ==
+  if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(sockaddr)) ==
       SOCKET_ERROR) {
     closesocket(serverSocket);
     WSACleanup();
@@ -150,7 +150,7 @@ int startMultiThreadServer(int port) {
       cout << "waiting connect..." << endl;
       sockaddr_in clientAddr;
       SOCKET clientSocket =
-          accept(serverSocket, (SOCKADDR *)&clientAddr, &socketAddrLen);
+          accept(serverSocket, (sockaddr*)&clientAddr, &socketAddrLen);
       if (INVALID_SOCKET == clientSocket) {
         cout << "accept client socket error." << endl;
         continue;

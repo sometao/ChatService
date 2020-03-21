@@ -52,7 +52,7 @@ void SocketServer::selecting() {
       sockaddr_in clientAddr = {};
       int socketAddrLen = sizeof(sockaddr_in);
       SOCKET clientId = INVALID_SOCKET;
-      clientId = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
+      clientId = accept(serverSocket, (sockaddr*)&clientAddr, &socketAddrLen);
       if (INVALID_SOCKET == clientId) {
         cout << "accept client socket error." << endl;
         continue;
@@ -168,7 +168,7 @@ int SocketServer::setupConnect() {
   serverAddr.sin_port = htons(port);
 
   serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(sockaddr_in)) == SOCKET_ERROR) {
+  if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(sockaddr_in)) == SOCKET_ERROR) {
     cleanSocket(serverSocket);
     cleanWSA();
     cout << "bind error." << endl;

@@ -20,7 +20,7 @@ int startClient(char* serverHost, int serverPort) {
   }
 
   SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (connect(clientSocket, (SOCKADDR*)&targetAddr, sizeof(SOCKADDR)) ==
+  if (connect(clientSocket, (sockaddr*)&targetAddr, sizeof(sockaddr)) ==
       SOCKET_ERROR) {
     cout << "connet failed." << endl;
     closesocket(clientSocket);

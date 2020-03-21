@@ -22,7 +22,7 @@ int SocketClient::connectServer(string ip, int port) {
   targetAddr.sin_port = htons(port);
 
   clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (connect(clientSocket, (SOCKADDR*)&targetAddr, sizeof(SOCKADDR)) == SOCKET_ERROR) {
+  if (connect(clientSocket, (sockaddr*)&targetAddr, sizeof(sockaddr)) == SOCKET_ERROR) {
     cout << "socket connet failed." << endl;
     cleanSocket(clientSocket);
     cleanWSA();

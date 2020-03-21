@@ -24,7 +24,7 @@ int startServer(int port) {
   }
 
   SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR)) ==
+  if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(sockaddr)) ==
       SOCKET_ERROR) {
     closesocket(serverSocket);
     WSACleanup();
@@ -43,7 +43,7 @@ int startServer(int port) {
 
   cout << "waiting connect..." << endl;
   SOCKET clientSocket =
-      accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
+      accept(serverSocket, (sockaddr*)&clientAddr, &socketAddrLen);
   cout << "got connection: " << clientSocket << endl;
 
   // char* remoteIp = inet_ntoa(clientAddr.sin_addr);
