@@ -153,7 +153,7 @@ void UserAgent::processEvent(shared_ptr<Event> evn) {
 }
 
 void UserAgent::start() {
-  using namespace std::chrono_literals;
+  using namespace std::literals::chrono_literals;
 
   const size_t inputBuffSize = 1024;
   char inputBuff[inputBuffSize];
