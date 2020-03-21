@@ -49,8 +49,8 @@ void SocketServer::selecting() {
       FD_CLR(serverSocket, &fdRead);
 
       cout << "waiting connect..." << endl;
-      SOCKADDR_IN clientAddr = {};
-      int socketAddrLen = sizeof(SOCKADDR_IN);
+      sockaddr_in clientAddr = {};
+      int socketAddrLen = sizeof(sockaddr_in);
       SOCKET clientId = INVALID_SOCKET;
       clientId = accept(serverSocket, (SOCKADDR*)&clientAddr, &socketAddrLen);
       if (INVALID_SOCKET == clientId) {
@@ -155,7 +155,7 @@ int SocketServer::transferChatMsg(shared_ptr<EventProcessor::ChatMsgEvent> chatM
 }
 
 int SocketServer::setupConnect() {
-  SOCKADDR_IN serverAddr = {0};
+  sockaddr_in serverAddr = {0};
 
   if (startupWSA() == ERR) {
     cout << "WSAStartup error." << endl;
@@ -168,7 +168,7 @@ int SocketServer::setupConnect() {
   serverAddr.sin_port = htons(port);
 
   serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR) {
+  if (bind(serverSocket, (SOCKADDR*)&serverAddr, sizeof(sockaddr_in)) == SOCKET_ERROR) {
     cleanSocket(serverSocket);
     cleanWSA();
     cout << "bind error." << endl;

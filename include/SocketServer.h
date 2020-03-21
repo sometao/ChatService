@@ -11,7 +11,7 @@ using std::string;
 
 class SocketServer {
   int port;
-  boolean isSelecting = false;
+  bool isSelecting = false;
   SOCKET serverSocket{INVALID_SOCKET};
   std::map<unsigned int, string> clientsWithUserName{};
   std::map<string, unsigned int> usernameToSocketIdMap{};

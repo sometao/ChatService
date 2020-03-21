@@ -7,9 +7,9 @@ int startServer(int port) {
   const int BACKLOG = 15;
 
   WSADATA wsaData;
-  SOCKADDR_IN serverAddr = {0};
-  SOCKADDR_IN clientAddr = {0};
-  int socketAddrLen = sizeof(SOCKADDR_IN);
+  sockaddr_in serverAddr = {0};
+  sockaddr_in clientAddr = {0};
+  int socketAddrLen = sizeof(sockaddr_in);
 
   char receiveBuffer[BUFFER_SIZE] = {0};
   char sendBuffer[BUFFER_SIZE] = {0};

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int chatWorker(SOCKET &clientSocket, SOCKADDR_IN &clientAddr) {
+int chatWorker(SOCKET &clientSocket, sockaddr_in&clientAddr) {
   char receiveBuffer[BUFFER_SIZE] = {0};
   char sendBuffer[BUFFER_SIZE] = {0};
 
@@ -84,8 +84,8 @@ int startMultiThreadServer(int port) {
   const int BACKLOG = 15;
 
   WSADATA wsaData;
-  SOCKADDR_IN serverAddr = {0};
-  int socketAddrLen = sizeof(SOCKADDR_IN);
+  sockaddr_in serverAddr = {0};
+  int socketAddrLen = sizeof(sockaddr_in);
 
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
@@ -148,7 +148,7 @@ int startMultiThreadServer(int port) {
       FD_CLR(serverSocket, &fdRead);
 
       cout << "waiting connect..." << endl;
-      SOCKADDR_IN clientAddr;
+      sockaddr_in clientAddr;
       SOCKET clientSocket =
           accept(serverSocket, (SOCKADDR *)&clientAddr, &socketAddrLen);
       if (INVALID_SOCKET == clientSocket) {

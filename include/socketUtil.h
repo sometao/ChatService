@@ -12,5 +12,5 @@
 void cleanWSA();
 void cleanSocket(SOCKET s);
 int startupWSA();
-void setSocketAddr(SOCKADDR_IN* addr, const char* ip);
+void setSocketAddr(sockaddr_in* addr, const char* ip);
 

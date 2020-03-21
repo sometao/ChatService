@@ -10,7 +10,7 @@ using std::string;
 
 
 int SocketClient::connectServer(string ip, int port) {
-  SOCKADDR_IN targetAddr = {0};
+  sockaddr_in targetAddr = {0};
   targetAddr.sin_family = AF_INET;
 
   if (startupWSA() == ERR) {

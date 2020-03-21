@@ -5,7 +5,7 @@ using namespace std;
 
 int startClient(char* serverHost, int serverPort) {
   WSADATA wsaData;
-  SOCKADDR_IN targetAddr;
+  sockaddr_in targetAddr;
   char sendBuff[BUFFER_SIZE] = {0};
   char rcvBuff[BUFFER_SIZE] = {0};
 

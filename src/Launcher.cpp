@@ -1,6 +1,7 @@
 #include "SocketServer.h"
 #include "UserAgent.h"
 #include "constant.h"
+#include <cstring>
 
 int main(int argc, char* argv[]) {
   using std::cout;

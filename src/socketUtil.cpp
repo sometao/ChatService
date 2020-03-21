@@ -31,7 +31,7 @@ int startupWSA() {
 #endif
 }
 
-void setSocketAddr(SOCKADDR_IN* addr, const char* ip) {
+void setSocketAddr(sockaddr_in* addr, const char* ip) {
   if (ip == nullptr) {
 #ifdef _WIN32
     (*addr).sin_addr.S_un.S_addr = htonl(INADDR_ANY);
