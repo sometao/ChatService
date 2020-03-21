@@ -17,16 +17,19 @@ ENDIF(MSVC)
 
 
 ######################################
-#  WS2 lib setting (For windows)
+#  WS2 lib (For windows)
+#  Threads lib (For windows)
 ######################################
 if(WIN32) # Check if we are on Windows
   message("compile on windows.")
   find_library(WS2_LIBRARY ws2_32)
 elseif(UNIX)
 	message("compile on UNIX")
+	find_package(Threads REQUIRED) 
 else()
   message(SEND_ERROR "You are on an unsupported platform! (Not Win32 or Unix)")
 endif()
+
 
 
 
@@ -34,9 +37,10 @@ endif()
 #  information
 ######################################
 
-message(CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR})
-message(PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR})
-message(WS2_LIBRARY=${WS2_LIBRARY})
+message("info: CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
+message("info: PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}")
+message("info: WS2_LIBRARY=${WS2_LIBRARY}")
+message("info: CMAKE_THREAD_LIBS_INIT=${CMAKE_THREAD_LIBS_INIT}")
 
 
 ############################################
@@ -62,8 +66,12 @@ if(WIN32) # Check if we are on Windows
 		PRIVATE 
 			${WS2_LIBRARY} 
 	)
+elseif(UNIX)
+	target_link_libraries( ${PROJECT_NAME}   
+		PRIVATE 
+			${CMAKE_THREAD_LIBS_INIT}
+	)
 endif()
-
 
 
 
