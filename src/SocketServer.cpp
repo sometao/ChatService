@@ -8,9 +8,6 @@ using std::endl;
 using std::string;
 using std::vector;
 
-extern void cleanSocket(SOCKET s);
-extern void cleanWSA();
-
 SocketServer::SocketServer(int _port) : port(_port) {}
 
 void SocketServer::selecting() {
@@ -50,7 +47,7 @@ void SocketServer::selecting() {
 
       cout << "waiting connect..." << endl;
       sockaddr_in clientAddr = {};
-      int socketAddrLen = sizeof(sockaddr_in);
+      socklen_t socketAddrLen = sizeof(sockaddr_in);
       SOCKET clientId = INVALID_SOCKET;
       clientId = accept(serverSocket, (sockaddr*)&clientAddr, &socketAddrLen);
       if (INVALID_SOCKET == clientId) {
@@ -63,50 +60,51 @@ void SocketServer::selecting() {
       clientConnet(clientId);
     }
 
-    for (size_t n = 0; n < fdRead.fd_count; n++) {
-      auto clientId = fdRead.fd_array[n];
+    for (auto gClient : clientsWithUserName) {
+      SOCKET clientId = (SOCKET)gClient.first;
+      if (FD_ISSET(clientId, &fdRead)) {
+        if (readSocketData(clientId, buff, BUFFER_SIZE) == ERR) {
+          cout << "clientId[" << clientId << "] disconnect." << endl;
+          kick(clientId);
+        } else {
+          cout << "Receive msg from client socket[" << clientId << "] " << endl;
+          string eventStr{buff};
 
-      if (readSocketData(clientId, buff, BUFFER_SIZE) == ERR) {
-        cout << "clientId[" << clientId << "] disconnect." << endl;
-        kick(clientId);
-      } else {
-        cout << "Receive msg from client socket[" << clientId << "] " << endl;
-        string eventStr{buff};
-
-        switch (eventStr[0]) {
-          case '0': {
-            auto event = EventProcessor::LoginEvent::create(eventStr);
-            auto success = loginAuth(clientId, event->username, event->passwd);
-            if (!success) {
-              cout << "WARNING: clientId[" << clientId << "] passwd error for user["
-                   << event->username << "]" << endl;
-              kick(clientId);
-            }
-          } break;
-          case '1': {
-            auto event = EventProcessor::ChatMsgEvent::create(eventStr);
-            auto username = getUsernameByClientId(clientId);
-            if (username == "") {
-              cout << "EEROR: unlogin clientId[" << clientId << "] msg: [" << eventStr << "]"
-                   << endl;
-              kick(clientId);
-            } else {
-              cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr << "]"
-                   << endl;
-
-              if (transferChatMsg(event) == ERR) {
-                auto msg = std::make_shared<EventProcessor::ChatMsgEvent>(
-                    username, "SERVER", "your msg delive failed.");
-                sendSocketData(clientId, msg->toMsg());
+          switch (eventStr[0]) {
+            case '0': {
+              auto event = EventProcessor::LoginEvent::create(eventStr);
+              auto success = loginAuth(clientId, event->username, event->passwd);
+              if (!success) {
+                cout << "WARNING: clientId[" << clientId << "] passwd error for user["
+                     << event->username << "]" << endl;
+                kick(clientId);
               }
-            }
-          } break;
-          case '2': {
-            auto event = EventProcessor::LogoutEvent::create(eventStr);
-          } break;
-          default:
-            cout << "error event: " << eventStr << endl;
-            break;
+            } break;
+            case '1': {
+              auto event = EventProcessor::ChatMsgEvent::create(eventStr);
+              auto username = getUsernameByClientId(clientId);
+              if (username == "") {
+                cout << "EEROR: unlogin clientId[" << clientId << "] msg: [" << eventStr << "]"
+                     << endl;
+                kick(clientId);
+              } else {
+                cout << "debug: got clientId[" << clientId << "] msg: [" << eventStr << "]"
+                     << endl;
+
+                if (transferChatMsg(event) == ERR) {
+                  auto msg = std::make_shared<EventProcessor::ChatMsgEvent>(
+                      username, "SERVER", "your msg delive failed.");
+                  sendSocketData(clientId, msg->toMsg());
+                }
+              }
+            } break;
+            case '2': {
+              auto event = EventProcessor::LogoutEvent::create(eventStr);
+            } break;
+            default:
+              cout << "error event: " << eventStr << endl;
+              break;
+          }
         }
       }
     }
