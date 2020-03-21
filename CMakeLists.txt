@@ -19,7 +19,15 @@ ENDIF(MSVC)
 ######################################
 #  WS2 lib setting (For windows)
 ######################################
-find_library(WS2_LIBRARY ws2_32)
+if(WIN32) # Check if we are on Windows
+  message("compile on windows.")
+  find_library(WS2_LIBRARY ws2_32)
+elseif(UNIX)
+	message("compile on UNIX")
+else()
+  message(SEND_ERROR "You are on an unsupported platform! (Not Win32 or Unix)")
+endif()
+
 
 
 ######################################
@@ -48,10 +56,15 @@ target_include_directories( ${PROJECT_NAME}
 		${PROJECT_SOURCE_DIR}/include
 )
 
-target_link_libraries( ${PROJECT_NAME}   
-	PRIVATE 
-		${WS2_LIBRARY} 
-)
+
+if(WIN32) # Check if we are on Windows
+	target_link_libraries( ${PROJECT_NAME}   
+		PRIVATE 
+			${WS2_LIBRARY} 
+	)
+endif()
+
+
 
 
 
