@@ -18,6 +18,8 @@ void SocketServer::selecting() {
 
   char buff[BUFFER_SIZE] = {};
 
+  SOCKET maxSocket = 0;
+
   while (true) {
     fd_set fdRead;
     fd_set fdWrite;
@@ -32,12 +34,25 @@ void SocketServer::selecting() {
     FD_SET(serverSocket, &fdExcept);
 
     for (auto gClient : clientsWithUserName) {
-      FD_SET(static_cast<SOCKET>(gClient.first), &fdRead);
+      auto cId = static_cast<SOCKET>(gClient.first);
+      FD_SET(cId, &fdRead);
     }
+
+    if (maxSocket == 0) {
+      maxSocket = serverSocket;
+      for (auto gClient : clientsWithUserName) {
+        auto cId = static_cast<SOCKET>(gClient.first);
+        if (cId > maxSocket) {
+          maxSocket = cId;
+        }
+      }
+    }
+
+
 
     timeval timeInterval = { 1, 0 };
 
-    int ret = select(serverSocket + 1, &fdRead, &fdWrite, &fdExcept, &timeInterval);
+    int ret = select(maxSocket, &fdRead, &fdWrite, &fdExcept, &timeInterval);
     // cout << "select once..." << endl;
 
     if (ret < 0) {
@@ -61,10 +76,12 @@ void SocketServer::selecting() {
       cout << "got connection: " << clientId << endl;
 
       clientConnet(clientId);
-      FD_SET(clientId, &fdRead);
+      maxSocket = 0;
+      //FD_SET(clientId, &fdRead);
     }
 
-    cout << "1 ------------------------ " << endl;
+    cout << "0 --------maxSocket = " << maxSocket << endl;
+    cout << "1 --------serverSocket = " << serverSocket << endl;
 
     for (auto gClient : clientsWithUserName) {
       SOCKET clientId = (SOCKET)gClient.first;
