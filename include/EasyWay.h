@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef _UNIX
+#include <unistd.h>
+#endif
+
 #include <chrono>
 #include <iostream>
 #include <random>
