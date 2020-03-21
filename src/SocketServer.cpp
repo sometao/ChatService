@@ -61,6 +61,7 @@ void SocketServer::selecting() {
       cout << "got connection: " << clientId << endl;
 
       clientConnet(clientId);
+      FD_SET(clientId, &fdRead);
     }
 
     cout << "1 ------------------------ " << endl;
