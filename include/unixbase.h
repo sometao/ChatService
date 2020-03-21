@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _UNIX
+#ifndef _WIN32
 #include <cstring>
 #include <cstdint>
 #endif
