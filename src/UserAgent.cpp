@@ -153,7 +153,6 @@ void UserAgent::processEvent(shared_ptr<Event> evn) {
 }
 
 void UserAgent::start() {
-  using namespace std::literals::chrono_literals;
 
   const size_t inputBuffSize = 1024;
   char inputBuff[inputBuffSize];
@@ -161,7 +160,7 @@ void UserAgent::start() {
   string username{};
   string passwd{};
 
-  std::this_thread::sleep_for(100ms);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   while (true) {
     memset(inputBuff, 0, inputBuffSize);
